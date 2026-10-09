@@ -1,0 +1,16 @@
+# Banco de desenvolvimento. Subir: docker compose up -d
+# Porta 5433 no seu PC (a 5432 já é do Postgres instalado no Windows).
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: guitartrek
+      POSTGRES_USER: guitartrek
+      POSTGRES_PASSWORD: guitartrek # só para dev local
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
