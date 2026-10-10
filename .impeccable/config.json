@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "dark-glow",
+        "value": "*",
+        "files": [
+          "docs/mockups/index.html"
+        ],
+        "createdAt": "2026-10-10T01:16:29.838Z",
+        "reason": "Claude: glows representam LEDs e válvulas acesas (literal ao tema amp/pedal) num mockup de exploração"
+      }
+    ]
+  }
+}
