@@ -17,7 +17,7 @@ Nesta aula o GuitarTrek vira um **app de verdade**: 5 páginas, um menu lateral 
 ## Parte 0 — O que eu já preparei (e por quê)
 
 Eu (Claude) fiz a parte "de bastidor":
-- Instalei o **React Router** (as rotas), o **Motion** (as animações) e as duas fontes da direção H: **Big Shoulders Display** para títulos e **DM Sans** para textos.
+- Instalei o **React Router** (as rotas), o **Motion** (as animações) e a fonte **Archivo** (na Parte 7 você vê por quê).
 - Coloquei as **cores da direção H** no arquivo `web/src/index.css`.
 - Criei `web/src/lib/config.ts` com o nome do app.
 
@@ -59,7 +59,7 @@ Esse `data-theme="amp"` escolhe qual bloco de cores vale. Se você trocar para `
 | `bg-accent` | Fundo de "passei o mouse em cima" |
 | `border` | Borda com a cor padrão |
 | `bg-cat-aquecimento`, `bg-cat-tecnica`, `bg-cat-escalas`, `bg-cat-ritmo`, `bg-cat-teoria` | As cores dos "pedais" de cada categoria |
-| `font-heading` | A fonte de títulos (Big Shoulders) |
+| `font-heading` | A fonte de títulos (Archivo expandida) |
 
 ---
 
@@ -104,7 +104,7 @@ export function PaginaEmBreve({ titulo, descricao, icone: Icone }: Props) {
 | `export function PaginaEmBreve(...)` | O `export` deixa **outros arquivos** usarem este componente, como o `public` do C#. |
 | `icone: Icone` | Desestrutura `icone` e já **renomeia** para `Icone`, com letra maiúscula. **Por quê?** O JSX só trata como componente o que começa com maiúscula. `<icone />` seria uma tag HTML (que não existe), e `<Icone />` é o componente. |
 | `<section>` | Tag HTML para "uma seção da página". Funciona como uma `div`, mas com significado. |
-| `className="text-5xl"` no `h1` | Título bem grande. A fonte Big Shoulders já vem automaticamente para todo `h1` (eu configurei no `index.css`). |
+| `className="text-5xl"` no `h1` | Título bem grande. O estilo de título já vem automaticamente para todo `h1` (eu configurei no `index.css`). |
 | `rounded-2xl` | Cantos arredondados. |
 | `border-2 border-dashed` | Borda de 2px, tracejada. É o visual de "espaço reservado, em construção". |
 | `p-10` | Espaço interno grande (40px). |
@@ -468,6 +468,115 @@ Algumas pessoas ativam no sistema a opção "reduzir movimento" (enjoo, tontura)
 ### Passo 6.3 — Faxina
 
 O `web/src/App.tsx` (o card da aula 01) não é mais usado. **Apague o arquivo.** Não se preocupe, ele fica guardado no histórico do git.
+
+---
+
+## Parte 7 — Acabamento premium
+
+Você achou o visual "infantil". O diagnóstico:
+
+1. **Um bug de estrutura:** no seu `Layout.tsx`, o `<nav>` ficou **dentro** do `<span>` do logo. Tudo que está dentro de um elemento **herda** o estilo dele, então os itens do menu ficaram com a fonte de título, enormes. É como uma classe filha em C# que herda um comportamento que você não queria.
+2. **A fonte Big Shoulders Black** é de pôster de show: chamativa, nada premium.
+3. **O botão âmbar cheio** no item ativo e a **borda tracejada** passam uma impressão de "brinquedo".
+
+A ideia nova, sem perder o amp: pense num **amplificador boutique**. O painel tem letras **largas e finas**, gravadas no metal, e uma única **luz piloto** âmbar acesa. É esse o visual que vamos copiar.
+
+### O que eu já troquei (no `index.css`)
+- A fonte agora é a **Archivo**. Ela é *variável*: dá para mudar o peso **e a largura**. Os títulos (`h1`, `h2`, `h3`) usam a largura **expandida** (`font-stretch: 125%`) com peso médio, no estilo da gravação do painel. O texto normal usa a largura padrão.
+- Os cantos ficaram menos redondos (`--radius` de 0.875rem para 0.5rem). Cantos muito redondos parecem botão de brinquedo.
+
+### Passo 7.1 — Conserte o logo e o menu lateral
+
+No `web/src/components/Layout.tsx`, troque **tudo** do `<aside ...>` até o `</aside>` por:
+
+```tsx
+      <aside className="hidden md:flex md:w-56 md:flex-col md:gap-10 md:border-r md:px-4 md:py-8">
+        <span className="px-3 font-heading text-lg font-semibold tracking-tight font-stretch-expanded">{APP_NAME}</span>
+        <nav className="flex flex-col gap-0.5">
+          {menu.map((item) => (
+            <NavLink
+              key={item.para}
+              to={item.para}
+              end
+              className={({ isActive }) =>
+                `flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                  isActive ? 'bg-accent text-foreground' : 'text-muted-foreground hover:text-foreground'
+                }`
+              }
+            >
+              {({ isActive }) => (
+                <>
+                  <item.icone className="size-4" />
+                  {item.rotulo}
+                  {isActive && <span className="ml-auto size-1.5 rounded-full bg-primary shadow-[0_0_8px_var(--primary)]" />}
+                </>
+              )}
+            </NavLink>
+          ))}
+        </nav>
+      </aside>
+```
+
+Repare que agora o `<span>` do logo **fecha na mesma linha** (`</span>`) e o `<nav>` vem **depois**, como irmão, não como filho.
+
+| Código | O que significa |
+|---|---|
+| `font-stretch-expanded` | Usa a largura expandida da fonte (125%). Só funciona com fontes variáveis que têm esse eixo, como a Archivo. |
+| `tracking-tight` | Letras um pouco mais juntas. Em letras largas, isso fica mais elegante. |
+| `text-sm` | Texto pequeno (14px). Menu não precisa gritar. |
+| `transition-colors` | Quando a cor muda (ao passar o mouse), ela muda **suavemente**, em vez de pular. |
+| `{({ isActive }) => ( ... )}` **como filho** do `NavLink` | Você já viu o `className` como função. O **conteúdo** do NavLink também pode ser uma função que recebe `isActive`. Usamos isso para desenhar a luz piloto só no item ativo. |
+| `<> ... </>` | Um **fragmento**: agrupa vários elementos sem criar uma `div` a mais na tela. É necessário porque uma função só pode devolver **uma** coisa. |
+| `{isActive && <span ... />}` | **Renderização condicional**: "se `isActive` for verdadeiro, desenhe o span". Em C# seria `if (isActive) desenhe(...)`. Se for falso, nada aparece. |
+| `ml-auto` | *Margin-left automática*: empurra a bolinha para a **ponta direita**. |
+| `size-1.5 rounded-full bg-primary` | Uma bolinha de 6px, toda redonda, na cor âmbar: a luz piloto. |
+| `shadow-[0_0_8px_var(--primary)]` | Um **brilho** em volta da bolinha, como uma lâmpada acesa. Os colchetes `[ ]` permitem escrever um valor que não existe pronto no Tailwind. Repare no `var(--primary)`: continuamos usando o **token**, não uma cor fixa. |
+
+**✅ O que você deve ver:** logo pequeno e largo no topo, menu com texto pequeno e cinza, e o item ativo com fundo levemente mais claro e uma **bolinha âmbar brilhando** à direita.
+
+### Passo 7.2 — Respiro no conteúdo
+
+Ainda no `Layout.tsx`, troque a linha do `<main ...>` por:
+
+```tsx
+      <main className="flex-1 px-5 pt-8 pb-28 md:px-12 md:py-12">
+```
+
+- `px-5` / `md:px-12`: espaço nas laterais (20px no celular, 48px no computador).
+- `pt-8`: espaço em cima. Espaço vazio bem usado é uma das marcas de um design caro.
+
+E deixe a animação mais discreta: no `motion.div`, troque `y: 12` por `y: 8` e `duration: 0.25` por `duration: 0.2`. Animação premium é **sutil**.
+
+### Passo 7.3 — O estado vazio sem tracejado
+
+Substitua o `return` do `web/src/components/PaginaEmBreve.tsx` por:
+
+```tsx
+  return (
+    <section className="flex max-w-3xl flex-col gap-8">
+      <h1 className="text-4xl">{title}</h1>
+      <div className="flex items-start gap-4 rounded-lg border bg-card p-6">
+        <Icon className="size-5 shrink-0 text-primary" />
+        <p className="max-w-md text-muted-foreground">{description}</p>
+      </div>
+    </section>
+  )
+```
+
+| Mudou | Por quê |
+|---|---|
+| `max-w-3xl` na `section` | Em tela larga, o conteúdo não se estica até a borda. Linhas longas demais cansam a leitura. |
+| `text-5xl` → `text-4xl` | O título expandido já ocupa bastante espaço, então não precisa ser tão grande. |
+| `border-2 border-dashed` → `border bg-card` | Uma borda fina e sólida sobre um fundo levemente mais claro parece um **painel**, não um rascunho. |
+| `flex-col items-center` → `items-start` | O ícone vai para o **lado** do texto, alinhado à esquerda, como numa ficha. |
+| `size-12` → `size-5` | Ícone pequeno, como um detalhe, não como uma ilustração. |
+| `shrink-0` | Impede o ícone de **encolher** quando o texto é longo. |
+
+**✅ O que você deve ver:** título largo e elegante, e embaixo um painel discreto com o ícone âmbar à esquerda do texto.
+
+### Passo 7.4 — A barra do celular
+
+Na barra inferior do `Layout.tsx`, troque `gap-1  py-2 text-xs` por `gap-1 py-2.5 text-[11px]` e o ícone `size-6` por `size-5`. Com 6 itens, letras de 11px e ícones menores cabem sem apertar.
 
 ---
 

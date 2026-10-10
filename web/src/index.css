@@ -1,8 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/dm-sans";
-@import "@fontsource-variable/big-shoulders-display";
+/* Archivo com eixos de peso e LARGURA: títulos expandidos, como a gravação no painel de um amp. */
+@import "@fontsource-variable/archivo/standard.css";
 
 /* Temas escuros ativam as variações "dark:" dos componentes shadcn. */
 @custom-variant dark (&:where([data-theme="amp"], [data-theme="amp"] *));
@@ -36,7 +36,7 @@
   --border: #3d312b;
   --input: #3d312b;
   --ring: #f2a541;
-  --radius: 0.875rem;
+  --radius: 0.5rem;
 
   /* Cores de categoria (os "pedais") */
   --cat-aquecimento: #5cc8a8;
@@ -80,8 +80,8 @@
 
 /* Liga os tokens às classes do Tailwind (bg-primary, text-cat-ritmo, font-heading...) */
 @theme inline {
-  --font-sans: 'DM Sans Variable', sans-serif;
-  --font-heading: 'Big Shoulders Display Variable', sans-serif;
+  --font-sans: 'Archivo Variable', sans-serif;
+  --font-heading: 'Archivo Variable', sans-serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -127,6 +127,7 @@
     @apply bg-background text-foreground antialiased;
   }
   h1, h2, h3 {
-    @apply font-heading font-black leading-none;
+    @apply font-heading font-semibold leading-tight tracking-tight;
+    font-stretch: 125%; /* largura expandida */
   }
 }

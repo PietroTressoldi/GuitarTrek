@@ -15,7 +15,7 @@ Projeto de estudo + produto: central de treino para guitarristas. Plano em `docs
 - Backend/infra/boilerplate o Claude pode fazer direto (explicando em resumo); componentes e hooks React o dev digita.
 
 ## Design
-- Direção visual escolhida: **H (amp + pedais + treino)**, ver `docs/mockups/index.html`. Fontes: Big Shoulders Display (títulos, `font-heading`) e DM Sans (texto).
+- Direção visual escolhida: **H (amp + pedais + treino)**, ver `docs/mockups/index.html`. Fonte: Archivo (variável). Títulos em largura expandida (`font-stretch: 125%`, peso semibold), estilo gravação de painel de amp; item ativo marcado por "luz piloto" âmbar, não por fundo âmbar cheio. Visual sóbrio/premium, nada de pôster.
 - Cores **só** via tokens de `web/src/index.css` (`bg-primary`, `bg-card`, `text-muted-foreground`, `bg-cat-*`...). Nunca cor fixa (`bg-amber-400`, `#hex`) em componente: o tema é trocável via `<html data-theme="amp|treino">`.
 - Categorias de exercício têm cor de "pedal": aquecimento, tecnica, escalas, ritmo, teoria.
 
