@@ -1,0 +1,24 @@
+# GuitarTrek — instruções para o Claude
+
+Projeto de estudo + produto: central de treino para guitarristas. Plano em `docs/PLANO.md`, tasks em GitHub Issues/Projects (issue #N = módulo N).
+
+## Quem é o dev
+- Sabe C# / .NET bem. **Não sabe NADA de front-end**: zero HTML, CSS, JavaScript, TypeScript, React, Tailwind.
+- Fala português. Responda em português.
+
+## Como ensinar (obrigatório)
+- Cada módulo começa com uma **aula** em `docs/aulas/NN-titulo.md` (abrir no VS Code com `Ctrl+Shift+V`) antes de qualquer código de front.
+- Explique **todo conceito novo na primeira vez que aparece**, sem pressupor nada. Compare com C# sempre que ajudar.
+- Passos pequenos: um conceito → um trecho de código → "o que você deve ver na tela". Nunca blocos grandes sem explicação linha a linha.
+- Diga **onde** colar/digitar (arquivo e posição) e **o resultado esperado**.
+- Termine com exercícios curtos com gabarito escondido em `<details>`.
+- Backend/infra/boilerplate o Claude pode fazer direto (explicando em resumo); componentes e hooks React o dev digita.
+
+## Ambiente
+- API: `dotnet run --project api/GuitarTrek.Api --launch-profile http` → http://localhost:5280 (a 5146 é do NTKDaemon da Native Instruments).
+- Banco: `docker compose up -d` → Postgres na porta 5433 (a 5432 é um Postgres nativo do Windows).
+- Front: `npm run dev --prefix web` → http://localhost:5173 (proxy `/api` → 5280).
+- Disco C: quase cheio: instalar/baixar coisas no D: sempre que possível.
+
+## Commits
+- Mensagens em português, convencionais (`feat:`, `fix:`, `docs:`), com `Refs #N` / `closes #N`.
