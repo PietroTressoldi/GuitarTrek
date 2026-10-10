@@ -8,7 +8,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
     // "@/..." aponta para src/ (ex.: import { Button } from "@/components/ui/button")
-    alias: { '@': path.resolve(__dirname, './src') },
+    alias: { '@': path.resolve(import.meta.dirname, './src') },
   },
   server: {
     // Tudo que começa com /api vai para a API .NET — assim não precisamos de CORS.

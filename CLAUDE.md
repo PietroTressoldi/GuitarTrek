@@ -14,6 +14,11 @@ Projeto de estudo + produto: central de treino para guitarristas. Plano em `docs
 - Termine com exercícios curtos com gabarito escondido em `<details>`.
 - Backend/infra/boilerplate o Claude pode fazer direto (explicando em resumo); componentes e hooks React o dev digita.
 
+## Design
+- Direção visual escolhida: **H (amp + pedais + treino)**, ver `docs/mockups/index.html`. Fontes: Big Shoulders Display (títulos, `font-heading`) e DM Sans (texto).
+- Cores **só** via tokens de `web/src/index.css` (`bg-primary`, `bg-card`, `text-muted-foreground`, `bg-cat-*`...). Nunca cor fixa (`bg-amber-400`, `#hex`) em componente: o tema é trocável via `<html data-theme="amp|treino">`.
+- Categorias de exercício têm cor de "pedal": aquecimento, tecnica, escalas, ritmo, teoria.
+
 ## Ambiente
 - API: `dotnet run --project api/GuitarTrek.Api --launch-profile http` → http://localhost:5280 (a 5146 é do NTKDaemon da Native Instruments).
 - Banco: `docker compose up -d` → Postgres na porta 5433 (a 5432 é um Postgres nativo do Windows).
