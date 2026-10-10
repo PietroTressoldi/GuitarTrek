@@ -12,6 +12,6 @@ export default defineConfig({
   },
   server: {
     // Tudo que começa com /api vai para a API .NET — assim não precisamos de CORS.
-    proxy: { '/api': 'http://localhost:5146' },
+    proxy: { '/api': 'http://localhost:5280' },
   },
 })

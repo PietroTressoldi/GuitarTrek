@@ -5,8 +5,8 @@ services:
     image: postgres:17-alpine
     environment:
       POSTGRES_DB: guitartrek
-      POSTGRES_USER: guitartrek
-      POSTGRES_PASSWORD: guitartrek # só para dev local
+      POSTGRES_USER: guitartrek_user
+      POSTGRES_PASSWORD: guitartrek_admin # só para dev local
     ports:
       - "5433:5432"
     volumes:
