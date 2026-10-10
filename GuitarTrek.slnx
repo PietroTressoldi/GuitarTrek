@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/api/">
+    <Project Path="api/GuitarTrek.Api/GuitarTrek.Api.csproj" />
+    <Project Path="api/GuitarTrek.Tests/GuitarTrek.Tests.csproj" />
+  </Folder>
+</Solution>

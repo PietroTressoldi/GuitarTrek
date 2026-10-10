@@ -1,0 +1,133 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+/* Archivo com eixos de peso e LARGURA: títulos expandidos, como a gravação no painel de um amp. */
+@import "@fontsource-variable/archivo/standard.css";
+
+/* Temas escuros ativam as variações "dark:" dos componentes shadcn. */
+@custom-variant dark (&:where([data-theme="amp"], [data-theme="amp"] *));
+
+/*
+  🎨 TOKENS DE COR — o único lugar do app com cores de verdade.
+  Componentes usam só os NOMES (bg-card, text-primary, bg-cat-escalas...).
+  Para trocar de tema: <html data-theme="amp"> → <html data-theme="treino">.
+  Novo tema = copiar um bloco abaixo e mudar os valores.
+*/
+
+/* Tema "amp" (direção H: amplificador + pedais + treino) — padrão */
+:root,
+[data-theme="amp"] {
+  --background: #211915;          /* tolex */
+  --foreground: #f1e8dc;
+  --card: #2d231f;
+  --card-foreground: #f1e8dc;
+  --popover: #2d231f;
+  --popover-foreground: #f1e8dc;
+  --primary: #f2a541;             /* âmbar de válvula */
+  --primary-foreground: #2b1a05;
+  --secondary: #3a2e28;
+  --secondary-foreground: #f1e8dc;
+  --muted: #3a2e28;
+  --muted-foreground: #a89a8a;
+  --accent: #3d312b;
+  --accent-foreground: #f1e8dc;
+  --destructive: #e5383b;         /* LED vermelho */
+  --success: #7bd88f;             /* recordes, "feito" */
+  --border: #3d312b;
+  --input: #3d312b;
+  --ring: #f2a541;
+  --radius: 0.5rem;
+
+  /* Cores de categoria (os "pedais") */
+  --cat-aquecimento: #5cc8a8;
+  --cat-tecnica: #f07a3a;
+  --cat-escalas: #f2c94c;
+  --cat-ritmo: #e85d9e;
+  --cat-teoria: #4c7df0;
+  --cat-foreground: #23211d;      /* texto em cima de um pedal */
+}
+
+/* Tema "treino" (direção C: claro e atlético) — exemplo de troca */
+[data-theme="treino"] {
+  --background: #eef1f4;
+  --foreground: #18212b;
+  --card: #ffffff;
+  --card-foreground: #18212b;
+  --popover: #ffffff;
+  --popover-foreground: #18212b;
+  --primary: #4d3df5;
+  --primary-foreground: #ffffff;
+  --secondary: #e3e6f0;
+  --secondary-foreground: #18212b;
+  --muted: #e3e6f0;
+  --muted-foreground: #5b6672;
+  --accent: #e3e6f0;
+  --accent-foreground: #18212b;
+  --destructive: #e5383b;
+  --success: #1f9d5a;
+  --border: #dde2e8;
+  --input: #dde2e8;
+  --ring: #4d3df5;
+  --radius: 1rem;
+
+  --cat-aquecimento: #2fbf71;
+  --cat-tecnica: #ff6a3d;
+  --cat-escalas: #f2b705;
+  --cat-ritmo: #e8467c;
+  --cat-teoria: #4d3df5;
+  --cat-foreground: #ffffff;
+}
+
+/* Liga os tokens às classes do Tailwind (bg-primary, text-cat-ritmo, font-heading...) */
+@theme inline {
+  --font-sans: 'Archivo Variable', sans-serif;
+  --font-heading: 'Archivo Variable', sans-serif;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-success: var(--success);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-cat-aquecimento: var(--cat-aquecimento);
+  --color-cat-tecnica: var(--cat-tecnica);
+  --color-cat-escalas: var(--cat-escalas);
+  --color-cat-ritmo: var(--cat-ritmo);
+  --color-cat-teoria: var(--cat-teoria);
+  --color-cat-foreground: var(--cat-foreground);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply font-sans;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+  h1, h2, h3 {
+    @apply font-heading font-semibold leading-tight tracking-tight;
+    font-stretch: 125%; /* largura expandida */
+  }
+}
