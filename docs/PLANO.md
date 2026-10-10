@@ -1,4 +1,4 @@
-﻿# GuitarTrek — Plano (nome piloto)
+# GuitarTrek — Plano (nome piloto)
 
 ## Contexto
 Você é guitarrista intermediário e quer uma "central de treino" inspirada na rotina de estudos que usava (agenda diária e tabela de progresso). A ideia é juntar num só lugar: biblioteca, diagramas, metrônomo, afinador, progresso, agenda, gerador de treino personalizado, repertório e gamificação. Tudo **bonito, visual e divertido**. O projeto também serve para você aprender front-end, então é entregue **por módulo e em ordem de prioridade**, e cada módulo deixa algo usável. As tasks vão para o ClickUp depois de você autorizar o conector.
@@ -61,7 +61,8 @@ GuitarTrek/
 - `Exercise`: Name, Category, Level 1-3, Description, Instructions, DefaultBpm, Fretboard (jsonb), Tags, Skill (velocidade/ritmo/teoria/ouvido/repertório), IsCustom
 - `PracticeLog`: UserId, ExerciseId?/SongId?, Date, Bpm, DurationMin, Rating, Notes
 - `TrainingPlan`: Goals[] (com ordem), Level, Weeks, StartDate, Availability (jsonb: minutos por dia da semana), Source (Regras/Trilha/IA/Manual)
-- `PlanItem`: PlanId, Date, Order, ExerciseId?/SongId?, Minutes, TargetBpm, IsQuickVersion, Status (pendente/feito/pulado), Locked
+- `PlanItem`: PlanId, Date, Order, ExerciseId?/SongId?/BackingTrackId?, Minutes, TargetBpm, IsQuickVersion, Status (pendente/feito/pulado), Locked
+- `BackingTrack`: UserId, Name, Style, Key, Bpm, Bars (jsonb: acorde em grau por compasso), IsPreset
 - `Song`: Title, Artist, Level, Techniques[], Status, CurrentBpm, TargetBpm, YoutubeUrl, Sections (jsonb, loops A-B). **Guarda só metadados.**
 - `Assessment`: Date, Results (jsonb)
 - `Challenge` / `UserChallenge`, `Achievement` / `UserAchievement`, `SkillNode` / `UserSkillNode`, e XP e nível no usuário
@@ -91,6 +92,17 @@ CRUD com EF Core, migrations e seed com cerca de 30 exercícios originais. Front
 ### 5. Braço da guitarra: escalas e acordes
 `theory/` com notas, intervalos, escalas e modos, acordes e posições, testado no Vitest. `<Fretboard>` em SVG com notas coloridas por grau e transições animadas. Páginas **Escalas** (CAGED/3NPS) e **Dicionário de acordes**. O diagrama também aparece no detalhe do exercício.
 *Você aprende:* TypeScript a fundo, SVG e testes.
+
+### 5.5 Backing tracks: montador 🎶
+Uma base para treinar junto, como o drone, mas com **bateria, baixo e acordes**. É o metrônomo evoluído: o mesmo agendador do `useMetronome`, agendando 16 passos por compasso em vez de 1 clique por tempo.
+- **Estilo** = um padrão de 1 compasso escrito em TypeScript (bumbo/caixa/chimbal como `'x...x...'`, baixo e acordes por grau, swing). Para começar: rock, blues shuffle, funk, pop, balada e bossa.
+- **Progressão** = acordes por compasso em graus (`I7 IV7 V7`), valendo para qualquer tom: blues de 12, I–V–vi–IV, ii–V–I, I–vi–IV–V, andaluza e vamp modal.
+- **Montador:** uma grade de compassos. Você clica, escolhe o acorde pelo grau e salva (API `BackingTrack`). Estilos e progressões prontas ficam no front.
+- **Ao tocar:** o compasso atual fica aceso, o acorde aparece grande e a escala sugerida aparece no `<Fretboard>`. Tem um mixer com volume e mute por instrumento.
+- **Som:** samples via `smplr` (bateria, baixo, piano/órgão), que aceita o horário exato de cada nota no relógio do áudio.
+- Os blocos de improviso do montador de treino (módulo 7) podem apontar para uma backing track.
+
+*Você aprende:* dados como "partitura", sequenciador, mais Web Audio, grade interativa e CRUD reaproveitado.
 
 ### 6. Progresso + streak + XP básico
 - `PracticeLog`, gráfico de BPM por exercício e tabela no estilo da planilha antiga.
@@ -162,7 +174,7 @@ Microfone + detecção de pitch por autocorrelação, com ponteiro animado e cen
 ### 13. Harmonia + quiz + roleta de improviso
 - Campo harmônico, círculo de quintas clicável e "qual escala sobre este acorde".
 - **Quiz de notas no braço** com tempo e recorde.
-- **Roleta de improviso**: sorteia tom, escala e BPM, liga o drone e o metrônomo e roda um timer de 3 minutos.
+- **Roleta de improviso**: sorteia tom, escala e BPM, liga o drone (ou uma backing track do módulo 5.5) e o metrônomo e roda um timer de 3 minutos.
 
 ### 14. Retrospectiva mensal
 Um resumo estilo "Wrapped" (horas, BPMs ganhos, streak, recordes, evolução do radar), com animações e um card compartilhável em imagem.
