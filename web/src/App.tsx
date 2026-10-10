@@ -20,18 +20,18 @@ function App() {
   return <main className="flex min-h-screen items-center justify-center bg-neutral-950 p-6">
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle className="text-2x1">🎸 GuitarTrek</CardTitle>
+        <CardTitle className="text-2xl">🎸 GuitarTrek</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
-        {error && <p className="text-red-500">API fora do ar </p>}
-        {!health && !error && <p className="text-neutral-500">Verificando...</p>}
-        {health && (
-          <>
-            <Status label="API" ok={health.status === 'ok'} />
-            <Status label="Banco de dados" ok={health.database} />
-          </>
-        )}
-      </CardContent>
+         {error && <p className="text-red-500">API fora do ar 😢</p>}
+          {!health && !error && <p className="text-neutral-500">Verificando...</p>}
+          {health && (
+            <>
+              <Status label="API" ok={health.status === 'ok'} />
+              <Status label="Banco de dados" ok={health.database} />
+            </>
+          )}
+        </CardContent>
     </Card>
   </main>
 }
