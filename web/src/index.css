@@ -17,7 +17,7 @@
 /* Tema "amp" (direção H: amplificador + pedais + treino) — padrão */
 :root,
 [data-theme="amp"] {
-  --background: #211915;          /* tolex */
+  --background: #141110;          /* tolex */
   --foreground: #f1e8dc;
   --card: #2d231f;
   --card-foreground: #f1e8dc;
