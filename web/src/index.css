@@ -37,6 +37,7 @@
   --input: #3d312b;
   --ring: #f2a541;
   --radius: 0.5rem;
+  --sombra: rgb(0 0 0 / 0.55);     /* sombra interna dos visores */
 
   /* Cores de categoria (os "pedais") */
   --cat-aquecimento: #5cc8a8;
@@ -69,6 +70,7 @@
   --input: #dde2e8;
   --ring: #4d3df5;
   --radius: 1rem;
+  --sombra: rgb(24 33 43 / 0.12);
 
   --cat-aquecimento: #2fbf71;
   --cat-tecnica: #ff6a3d;
