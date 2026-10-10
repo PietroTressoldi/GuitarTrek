@@ -82,7 +82,7 @@ Primeiro, 2 ou 3 protótipos visuais da tela "Hoje" e do metrônomo em direçõe
 *Você aprende:* Tailwind, componentes shadcn, layout responsivo e React Router.
 
 ### 3. Metrônomo + drone
-Hook `useMetronome` com lookahead scheduler: BPM, compasso, acento, tap tempo, subdivisões e speed trainer. Drone de tônica ou acorde para treinar escalas. A UI é bem visual: pulso animado e knob de BPM. Já é útil sozinho, mesmo sem backend.
+Hook `useMetronome` com lookahead scheduler: BPM, compasso, acento, tap tempo, subdivisões e speed trainer. Drone de tônica ou acorde para treinar escalas. **Som do clique configurável:** timbre (eletrônico, madeira, cowbell, chimbal), altura (frequência) do acento e dos outros tempos, volume e acento liga/desliga. Começa com oscilador (tipo de onda + frequência + duração) e ganha samples reais junto com as backing tracks (5.5). A UI é bem visual: pulso animado e knob de BPM. Já é útil sozinho, mesmo sem backend.
 *Você aprende:* custom hooks, `useRef`, efeitos com limpeza, Web Audio e Motion.
 
 ### 4. Biblioteca de exercícios
