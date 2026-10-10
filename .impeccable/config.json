@@ -11,6 +11,15 @@
         ],
         "createdAt": "2026-10-10T01:16:29.838Z",
         "reason": "Claude: glows representam LEDs e válvulas acesas (literal ao tema amp/pedal) num mockup de exploração"
+      },
+      {
+        "rule": "nested-cards",
+        "value": "*",
+        "files": [
+          "docs/mockups/index.html"
+        ],
+        "createdAt": "2026-10-10T01:17:31.117Z",
+        "reason": "Claude: cards dentro de molduras de celular são a apresentação do mockup, não hierarquia real de UI"
       }
     ]
   }
