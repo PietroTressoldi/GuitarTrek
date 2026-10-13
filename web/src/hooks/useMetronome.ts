@@ -4,19 +4,20 @@ const INTERVALO_MS = 25    // de quanto em quanto tempo o agendador acorda
 const JANELA_S = 0.1       // até quanto do futuro ele agenda os cliques
 
 export type Som = {
-    nome: string
-    onda: OscillatorType
-    acento: number     // frequência (Hz) do tempo 1
-    tempo: number      // frequência dos outros tempos
-    sub: number        // frequência das subdivisões
-    duracao: number    // segundos
+    id: string      // nome do arquivo em /sons, sem o .wav
+    nome: string    // o que aparece na tela
 }
 
 export const SONS: Som[] = [
-    { nome: 'Eletrônico', onda: 'sine', acento: 1500, tempo: 1000, sub: 700, duracao: 0.05 },
-    { nome: 'Madeira', onda: 'triangle', acento: 1200, tempo: 800, sub: 600, duracao: 0.03 },
-    { nome: 'Cowbell', onda: 'square', acento: 800, tempo: 560, sub: 420, duracao: 0.08 },
+    { id: 'bipe', nome: 'Bipe' },
+    { id: 'woodblock', nome: 'Woodblock' },
+    { id: 'claves', nome: 'Claves' },
+    { id: 'cowbell', nome: 'Cowbell' },
+    { id: 'chimbal', nome: 'Chimbal' },
 ]
+
+const ALTURA_ACENTO = 1.33   // o tempo 1 toca o mesmo som uma quarta acima
+
 export type SpeedTrainer = {
     ativo: boolean
     aumento: number    // quantos BPM sobe
@@ -36,6 +37,20 @@ export function useMetronome() {
     const [trainer, setTrainer] = useState<SpeedTrainer>({ ativo: false, aumento: 5, aCada: 4, teto: 160 })
 
     const audio = useRef<AudioContext | null>(null)
+    const amostras = useRef<Record<string, AudioBuffer>>({})
+
+    useEffect(() => {
+        const ctx = new AudioContext()
+        audio.current = ctx
+        for (const s of SONS) {
+            carregarAmostra(ctx, `/sons/${s.id}.wav`).then((buffer) => {
+                amostras.current[s.id] = buffer
+            })
+        }
+        return () => {
+            ctx.close()
+        }
+    }, [])
 
     const config = useRef({ bpm, tempos, subdivisao, som, volume, acento, trainer })
     const toques = useRef<number[]>([])
@@ -59,11 +74,20 @@ export function useMetronome() {
         }
     }
 
+    function ouvir(s: Som) {
+        const ctx = audio.current
+        const buffer = amostras.current[s.id]
+
+        if (!ctx || !buffer) return
+        ctx.resume()
+        tocarAmostra(ctx, buffer, ctx.currentTime, config.current.volume, 1)
+    }
+
     useEffect(() => {
         if (!tocando) return
 
-        audio.current ??= new AudioContext()
         const ctx = audio.current
+        if (!ctx) return
         ctx.resume()
 
         let proximoClique = ctx.currentTime + 0.05
@@ -77,8 +101,11 @@ export function useMetronome() {
                 const ehTempo = passo % c.subdivisao === 0
                 const tempo = Math.floor(passo / c.subdivisao)
 
-                const frequencia = !ehTempo ? c.som.sub : tempo === 0 && c.acento ? c.som.acento : c.som.tempo
-                tocarClique(ctx, proximoClique, c.som, frequencia, ehTempo ? c.volume : c.volume * 0.5)
+                const buffer = amostras.current[c.som.id]
+                if (buffer) {
+                    const altura = tempo === 0 && ehTempo && c.acento ? ALTURA_ACENTO : 1
+                    tocarAmostra(ctx, buffer, proximoClique, ehTempo ? c.volume : c.volume * 0.45, altura)
+                }
 
                 if (ehTempo) {
                     const atraso = (proximoClique - ctx.currentTime) * 1000
@@ -105,19 +132,25 @@ export function useMetronome() {
         }
     }, [tocando])
 
-    return { bpm, mudarBpm, tempos, setTempos, tocando, setTocando, tempoAtual, subdivisao, setSubdivisao, som, setSom, volume, setVolume, acento, setAcento, tap, trainer, setTrainer }
+    return { bpm, mudarBpm, tempos, setTempos, tocando, setTocando, tempoAtual, subdivisao, setSubdivisao, som, setSom, volume, setVolume, acento, setAcento, tap, ouvir, trainer, setTrainer }
 }
 
-function tocarClique(ctx: AudioContext, quando: number, som: Som, frequencia: number, volume: number) {
-    const osc = ctx.createOscillator()
+
+async function carregarAmostra(ctx: AudioContext, url: string) {
+    const resposta = await fetch(url)
+    const bytes = await resposta.arrayBuffer()
+    return ctx.decodeAudioData(bytes)
+}
+
+function tocarAmostra(ctx: AudioContext, buffer: AudioBuffer, quando: number, volume: number, altura: number) {
+
+    const fonte = ctx.createBufferSource()
     const ganho = ctx.createGain()
 
-    osc.type = som.onda
-    osc.frequency.value = frequencia
-    ganho.gain.setValueAtTime(volume, quando)
-    ganho.gain.exponentialRampToValueAtTime(0.001, quando + som.duracao)
+    fonte.buffer = buffer
+    fonte.playbackRate.value = altura
+    ganho.gain.value = volume
 
-    osc.connect(ganho).connect(ctx.destination)
-    osc.start(quando)
-    osc.stop(quando + som.duracao)
+    fonte.connect(ganho).connect(ctx.destination)
+    fonte.start(quando)
 }

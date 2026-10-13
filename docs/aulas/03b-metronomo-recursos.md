@@ -11,7 +11,7 @@ O metrônomo da aula 03 já é preciso. Agora ele ganha os recursos que fazem di
 
 **Conceitos novos:** juntar vários refs num só, `children` (componente que embrulha outro conteúdo), funções passadas como props, `type` de objeto, o operador **spread** `...` (o `with` do C#), `filter` e `slice` em listas, checkbox e campo numérico.
 
-**Fica para a aula 03c:** o drone e o painel flutuante (o metrônomo acessível em qualquer tela).
+**Fica para as aulas 03c e 03d:** sons gravados e visual de painel (o drone e o painel flutuante vêm depois).
 
 ---
 
@@ -697,4 +697,4 @@ Por causa do `if (ehTempo)` em volta do `setTimeout` das luzes. Só os clicks qu
 
 ---
 
-✅ **Terminou?** Me avise. Na **aula 03c**: o **drone** (uma nota contínua para treinar escalas e afinação) e o **painel flutuante**, que deixa o metrônomo acessível em qualquer tela do app.
+✅ **Terminou?** Me avise. Na **aula 03c**: os **sons gravados de verdade** (woodblock, cowbell, chimbal...) no lugar dos bipes sintéticos.
