@@ -1,6 +1,7 @@
 import { Hand, Minus, Pause, Play, Plus, Volume2 } from 'lucide-react'
-import { SONS, useMetronome } from '@/hooks/useMetronome'
-import { ACORDES, NOTAS, TIMBRES, useDrone } from '@/hooks/useDrone'
+import { SONS } from '@/hooks/useMetronome'
+import { useAudio } from '@/components/ProvedorDeAudio'
+import { ACORDES, NOTAS, TIMBRES } from '@/hooks/useDrone'
 import { IconeSubdivisao, IconesSom } from '@/components/IconesMusicais'
 import { motion } from 'motion/react'
 import { useEffect, type ReactNode } from 'react'
@@ -25,8 +26,7 @@ const ANDAMENTOS = [
 
 export function Metronomo() {
 
-    const m = useMetronome()
-    const drone = useDrone()
+    const { metronomo: m, drone } = useAudio()
     const { tocando, setTocando } = m
     const andamento = ANDAMENTOS.find((a) => m.bpm < a.ate)!.nome
 
