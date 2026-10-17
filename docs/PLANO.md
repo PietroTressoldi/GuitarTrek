@@ -69,6 +69,8 @@ GuitarTrek/
 
 ## Trilha de tasks — por ordem de prioridade
 
+> **Ordem atual (out/2026): improviso puxado para frente.** Depois do 3, a sequência é **5 → 5.5 → 12 (afinador, que traz o microfone) → 17 (Laboratório de improviso)**, e então volta para 4, 6, 7… A numeração abaixo continua a mesma, para bater com as issues.
+
 ### 1. Setup full stack
 Docker Compose com Postgres, `dotnet new webapi` + EF Core/Npgsql, `/api/health`, Vite react-ts + Tailwind + shadcn/ui, e a chamada `/api/health` aparecendo na tela.
 *Você aprende:* estrutura do Vite, JSX, componente, `useState`/`useEffect`, `fetch` e o básico de Docker.
@@ -169,12 +171,12 @@ Deploy com HTTPS: API + Postgres gerenciado num serviço com free tier, e o fron
 - Músicas também podem entrar no plano.
 
 ### 12. Afinador
-Microfone + detecção de pitch por autocorrelação, com ponteiro animado e cents. Suporta afinação padrão e alternativas.
+Microfone + detecção de pitch por autocorrelação, com ponteiro animado e cents. Suporta afinação padrão e alternativas. Vem antes do 17: o hook `usePitch` criado aqui é o "ouvido" do Laboratório de improviso.
 
-### 13. Harmonia + quiz + roleta de improviso
+### 13. Harmonia + quiz
 - Campo harmônico, círculo de quintas clicável e "qual escala sobre este acorde".
 - **Quiz de notas no braço** com tempo e recorde.
-- **Roleta de improviso**: sorteia tom, escala e BPM, liga o drone (ou uma backing track do módulo 5.5) e o metrônomo e roda um timer de 3 minutos.
+- (A roleta de improviso foi para o módulo 17.)
 
 ### 14. Retrospectiva mensal
 Um resumo estilo "Wrapped" (horas, BPMs ganhos, streak, recordes, evolução do radar), com animações e um card compartilhável em imagem.
@@ -184,6 +186,21 @@ ASP.NET Core Identity + JWT, login e cadastro. A assinatura (Stripe) fica para q
 
 ### 16. IA
 Planos e sugestões de músicas via Claude API (`claude-sonnet-5-5`), com saída JSON validada pelo mesmo código do gerador.
+
+### 17. Laboratório de improviso 🎸
+Para a improvisação, que é a habilidade mais importante: exercícios em tempo real sobre backing tracks, com o app **ouvindo pelo microfone**. Fica numa rota nova `/improviso`, com um pedal de cor própria (token `cat-improviso`). Depende de 5, 5.5 e 12.
+- **17a — Palco (guiado):** você escolhe tom, escala e progressão, e toca a backing track ou o drone. No `<Fretboard>` ao vivo, a escala fica apagada e as **notas do acorde atual** acendem a cada compasso, com filtro por shape CAGED. Também tem:
+  - **Cartas de restrição** com timer: só 3 notas, uma corda, só colcheias, pergunta e resposta, silêncio, motivo e variação, terminar na 3ª.
+  - **Roleta e desafio do dia:** sorteia tom, escala, estilo, BPM e carta. O desafio do dia é sempre o mesmo para a mesma data.
+- **17b — O app te ouve:** a nota detectada pelo `usePitch` pulsa no braço. Medidores em tempo real mostram a **% de notas na escala** e as **notas-alvo**: na troca de acorde, você tem uma janela de cerca de 1 tempo para cair na tônica, na 3ª ou na 7ª. As cartas são checadas automaticamente quando dá. Só detecta uma nota por vez (monofônico).
+- **17c — Ouvido, call-and-response:** o `theory/` gera uma frase curta na escala e o app toca. Você repete, e o mic compara a sequência de notas, tolerando 1 erro. A dificuldade sobe aos poucos. No modo "resposta", você improvisa livre e só precisa terminar numa nota-alvo.
+- **17d — Trilha e gamificação:** a trilha "Improviso" é feita de fases (penta em 1 shape → 5 shapes → notas-alvo no blues → maior/menor → dórico/mixolídio → ii–V–I). Cada fase dá de 1 a 3 estrelas e desbloqueia a próxima. Completam o módulo:
+  - entidade `ImprovSession` com a API `/api/improviso/sessoes`;
+  - streak do desafio do dia;
+  - tela de resumo com confete quando bater recorde;
+  - o XP liga ao XP geral quando o 6 chegar.
+
+*Você aprende:* microfone e análise de áudio em tempo real, sincronizar eventos com o relógio do áudio, máquina de estados de um jogo e dados de jogo (fases e desafios) em TypeScript.
 
 ### Futuro
 Player de tablatura estilo Songsterr com alphaTab, usando arquivos Guitar Pro que você tiver. Também: detecção de tempo pelo microfone e gravação de sessões.

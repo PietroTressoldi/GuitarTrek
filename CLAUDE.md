@@ -12,7 +12,7 @@ Projeto de estudo + produto: central de treino para guitarristas. Plano em `docs
 - Passos pequenos: um conceito → um trecho de código → "o que você deve ver na tela". Nunca blocos grandes sem explicação linha a linha.
 - Diga **onde** colar/digitar (arquivo e posição) e **o resultado esperado**.
 - Termine com exercícios curtos com gabarito escondido em `<details>`.
-- Backend/infra/boilerplate o Claude pode fazer direto (explicando em resumo); componentes e hooks React o dev digita.
+- **Backend C# o dev implementa** (quer conhecer o sistema), mas sem aula aprofundada: o Claude dá só um roteiro curto (entidades, endpoints, ordem dos passos, pegadinhas) e revisa. Infra/boilerplate de front (instalar pacote, config) o Claude pode fazer direto; componentes e hooks React o dev digita.
 
 ## Design
 - Direção visual escolhida: **H (amp + pedais + treino)**, ver `docs/mockups/index.html`. Fonte: Archivo (variável). Títulos em largura expandida (`font-stretch: 125%`, peso semibold), estilo gravação de painel de amp; item ativo marcado por "luz piloto" âmbar, não por fundo âmbar cheio. Visual sóbrio/premium, nada de pôster.
