@@ -4,7 +4,7 @@ import { useAudio } from '@/components/ProvedorDeAudio'
 import { ACORDES, NOTAS, TIMBRES } from '@/hooks/useDrone'
 import { IconeSubdivisao, IconesSom } from '@/components/IconesMusicais'
 import { motion } from 'motion/react'
-import { useEffect, type ReactNode } from 'react'
+import { useEffect, useRef, type ReactNode } from 'react'
 
 const COMPASSOS = [2, 3, 4, 5, 6, 7]
 const SUBDIVISOES = [
@@ -77,19 +77,11 @@ export function Metronomo() {
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center justify-center gap-8">
                         <BotaoRedondo rotulo="Diminuir BPM" onClick={() => m.mudarBpm(m.bpm - 1)}>
                             <Minus className="size-4" />
                         </BotaoRedondo>
-                        <input
-                            type="range"
-                            min={30}
-                            max={300}
-                            value={m.bpm}
-                            onChange={(e) => m.mudarBpm(Number(e.target.value))}
-                            aria-label="BPM"
-                            className="w-full accent-primary"
-                        />
+                        <Knob rotulo="BPM" valor={m.bpm} min={30} max={300} onChange={m.mudarBpm} />
                         <BotaoRedondo rotulo="Aumentar BPM" onClick={() => m.mudarBpm(m.bpm + 1)}>
                             <Plus className="size-4" />
                         </BotaoRedondo>
@@ -317,5 +309,79 @@ function Numero({ rotulo, unidade, valor, onChange }: { rotulo: string; unidade:
                 <span className="text-xs text-muted-foreground">{unidade}</span>
             </span>
         </label>
+    )
+}
+
+let ctxTique: AudioContext | null = null
+let amostraTique: AudioBuffer | null = null
+let ultimoTique = 0
+// Onde cada "detente" acontece dentro de /sons/knob.mp3 (segundos, picos medidos no arquivo)
+
+const CLIQUES = [0.2351, 0.4847, 0.6811, 0.9469, 1.0066, 1.2694, 2.0716, 2.5115, 2.7279]
+
+// Clique de knob analógico: toca só um pedacinho de um detente real, sorteado, bem baixinho
+async function tique(posicao: number) {
+    ctxTique ??= new AudioContext()
+    const ctx = ctxTique
+    amostraTique ??= await ctx.decodeAudioData(await (await fetch('/sons/knob.mp3')).arrayBuffer())
+    const t = ctx.currentTime
+    if (t - ultimoTique < 0.03) return // arrastando rápido: não vira metralhadora
+    ultimoTique = t
+
+    const src = ctx.createBufferSource()
+    src.buffer = amostraTique
+    src.playbackRate.value = 0.97 + posicao * 0.08 + Math.random() * 0.04
+    const ganho = ctx.createGain()
+    ganho.gain.setValueAtTime(0.18, t)
+    ganho.gain.setValueAtTime(0.18, t + 0.02)
+    ganho.gain.linearRampToValueAtTime(0, t + 0.04) // fade curto, sem estalo no corte
+    src.connect(ganho).connect(ctx.destination)
+    const inicio = CLIQUES[Math.floor(Math.random() * CLIQUES.length)] - 0.003
+    src.start(t, inicio, 0.04)
+}
+
+function Knob({ rotulo, valor, min, max, onChange }: { rotulo: string; valor: number; min: number; max: number; onChange: (v: number) => void }) {
+    const acumulado = useRef<number | null>(null) // valor "solto" (decimal) enquanto arrasta
+    const angulo = -135 + ((valor - min) / (max - min)) * 270
+
+    return (
+        <div
+            role="slider"
+            tabIndex={0}
+            aria-label={rotulo}
+            aria-valuemin={min}
+            aria-valuemax={max}
+            aria-valuenow={valor}
+            onPointerDown={(e) => {
+                e.currentTarget.setPointerCapture(e.pointerId)
+                e.currentTarget.requestPointerLock?.() // prende e esconde o cursor
+                acumulado.current = valor
+            }}
+            onPointerMove={(e) => {
+                if (acumulado.current === null) return
+                const novo = Math.min(max, Math.max(min, acumulado.current - e.movementY / 2))
+                acumulado.current = novo
+                if (Math.round(novo) !== valor) tique(novo / max)
+                onChange(novo)
+            }}
+            onPointerUp={() => {
+                acumulado.current = null
+                if (document.pointerLockElement) document.exitPointerLock()
+            }}
+            onKeyDown={(e) => {
+                if (e.key === 'ArrowUp' || e.key === 'ArrowRight') {
+                    e.preventDefault()
+                    onChange(valor + 1)
+                }
+                if (e.key === 'ArrowDown' || e.key === 'ArrowLeft') {
+                    e.preventDefault()
+                    onChange(valor - 1)
+                }
+            }}
+            style={{ rotate: `${angulo}deg` }}
+            className="relative size-24 shrink-0 cursor-ns-resize touch-none rounded-full border-4 border-background bg-secondary shadow-[0_6px_16px_var(--sombra)] outline-offset-4"
+        >
+            <span className="absolute top-2 left-1/2 h-5 w-1 -translate-x-1/2 rounded-full bg-primary shadow-[0_0_6px_var(--primary)]" />
+        </div>
     )
 }
