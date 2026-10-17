@@ -3,7 +3,7 @@ import { notasDaEscala, type NomeEscala } from '@/theory/escalas'
 import { grau, type Nota } from '@/theory/notas'
 import { AnimatePresence, motion } from 'motion/react'
 
-const CASAS = 15
+const CASAS = 17
 const LARGURA_CASA = 60
 const ESPACO_CORDA = 30
 const X_PESTANA = 40 //A pestana (onde as cordas soltas terminam) fica a 40 unidades da esquerda. Sobra espaço à esquerda para as notas das cordas soltas.
@@ -29,9 +29,10 @@ type Props = {
     escala: NomeEscala
     mostrar?: Exibicao
     alvos?: Nota[]
+    destaque?: string[]
 }
 
-export function Fretboard({ tonica, escala, mostrar = 'nota', alvos = [] }: Props) {
+export function Fretboard({ tonica, escala, mostrar = 'nota', alvos = [], destaque = [] }: Props) {
     const notas = notasDaEscala(tonica, escala)
     const casas = Array.from({ length: CASAS + 1 }, (_, i) => i) //Cria [0, 1, 2, ..., 15]. É o Enumerable.Range(0, 16) do C#. O _ é o nome convencional para "parâmetro que eu não uso".
 
@@ -59,7 +60,7 @@ export function Fretboard({ tonica, escala, mostrar = 'nota', alvos = [] }: Prop
                     className="stroke-muted-foreground"
                 />
             ))}
-            {[3, 5, 7, 9, 15].map((casa) => (
+            {[3, 5, 7, 9, 15, 17].map((casa) => (
                 <circle key={casa} cx={xCasa(casa)} cy={yCorda(2.5)} r={5} className="fill-muted" />
             ))}
             <circle cx={xCasa(12)} cy={yCorda(1.5)} r={5} className="fill-muted" />
@@ -75,11 +76,13 @@ export function Fretboard({ tonica, escala, mostrar = 'nota', alvos = [] }: Prop
                         const nota = notaNaCasa(corda, casa)
                         if (!notas.includes(nota)) return null
                         const ehTonica = nota === tonica
+                        const chave = `${corda}-${casa}`
+                        const apagada = destaque.length > 0 && !destaque.includes(chave)
                         return (
                             <motion.g
-                                key={`${corda}-${casa}`}
+                                key={chave}
                                 initial={{ scale: 0 }}
-                                animate={{ scale: 1 }}
+                                animate={{ scale: 1, opacity: apagada ? 0.15 : 1 }}
                                 exit={{ scale: 0 }}
                                 transition={{ duration: 0.2 }}
                             >
