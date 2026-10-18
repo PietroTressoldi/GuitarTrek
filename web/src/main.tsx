@@ -10,7 +10,7 @@ import { Progresso } from './pages/Progresso.tsx'
 import { Layout } from './components/Layout'
 import { MotionConfig } from 'motion/react'
 import { Afinador } from './pages/Afinador.tsx'
-import { Escalas } from './pages/Escalas.tsx'
+import { Braco } from './pages/Braco.tsx'
 
 const router = createBrowserRouter([
   {
@@ -23,7 +23,7 @@ const router = createBrowserRouter([
       { path: 'biblioteca', element: <Biblioteca /> },
       { path: 'progresso', element: <Progresso /> },
       { path: 'afinador', element: <Afinador /> },
-      { path: 'escalas', element: <Escalas /> }
+      { path: 'braco', element: <Braco /> }
     ],
   },
 ])

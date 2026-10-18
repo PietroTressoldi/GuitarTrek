@@ -1,6 +1,6 @@
 # Aula 05c — Shapes: a escala em caixas
 
-> 💡 Abra com **`Ctrl+Shift+V`**. Deixe rodando `npm run dev --prefix web` (página http://localhost:5173/escalas) e o `npm run test --prefix web`.
+> 💡 Abra com **`Ctrl+Shift+V`**. Deixe rodando `npm run dev --prefix web` (página http://localhost:5173/escalas; depois da aula 05d ela vira http://localhost:5173/braco) e o `npm run test --prefix web`.
 
 Hoje o braço mostra a escala **inteira**: dezenas de bolinhas. Ninguém improvisa assim. Na prática você toca numa **região** do braço, num **shape** (a "caixa"): a famosa caixa da casa 5 da pentatônica de Lá é um shape. Nesta aula o app aprende a calcular os shapes de qualquer escala e tom, e a página ganha um seletor **Todo · 1 · 2 · 3…** que acende só o shape escolhido e apaga o resto.
 

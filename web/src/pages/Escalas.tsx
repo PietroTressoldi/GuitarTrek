@@ -30,8 +30,6 @@ export function Escalas() {
 
     return (
         <section className="flex flex-col gap-8">
-            <h1 className="text-4xl">Escalas</h1>
-
             <div className="flex flex-wrap gap-4">
                 <label className="flex flex-col gap-1.5 text-xs text-muted-foreground">
                     Tônica
@@ -105,7 +103,7 @@ export function Escalas() {
             </p>
 
             <div className="overflow-x-auto rounded-xl border bg-card p-4">
-                <Fretboard tonica={tonica} escala={escala} mostrar={mostrar} destaque={posicao === null ? [] : shape(tonica, escala, posicao)} />
+                <Fretboard tonica={tonica} notas={notasDaEscala(tonica, escala)} mostrar={mostrar} destaque={posicao === null ? [] : shape(tonica, escala, posicao)} />
             </div>
         </section>
     )

@@ -12,7 +12,7 @@ const menu = [
     { para: '/biblioteca', rotulo: 'Biblioteca', icone: Library },
     { para: '/progresso', rotulo: 'Progresso', icone: TrendingUp },
     { para: '/afinador', rotulo: 'Afinador', icone: AudioWaveform },
-    { para: '/escalas', rotulo: 'Escalas', icone: Music },
+    { para: '/braco', rotulo: 'Braço', icone: Music },
 ]
 
 export function Layout() {

@@ -1,5 +1,4 @@
 import { AFINACAO_PADRAO, notaNaCasa } from '@/theory/braco'
-import { notasDaEscala, type NomeEscala } from '@/theory/escalas'
 import { grau, type Nota } from '@/theory/notas'
 import { AnimatePresence, motion } from 'motion/react'
 
@@ -26,14 +25,14 @@ export type Exibicao = 'nota' | 'grau'
 
 type Props = {
     tonica: Nota
-    escala: NomeEscala
+    notas: Nota[]
     mostrar?: Exibicao
     alvos?: Nota[]
     destaque?: string[]
 }
 
-export function Fretboard({ tonica, escala, mostrar = 'nota', alvos = [], destaque = [] }: Props) {
-    const notas = notasDaEscala(tonica, escala)
+export function Fretboard({ tonica, notas, mostrar = 'nota', alvos = [], destaque = [] }: Props) {
+
     const casas = Array.from({ length: CASAS + 1 }, (_, i) => i) //Cria [0, 1, 2, ..., 15]. É o Enumerable.Range(0, 16) do C#. O _ é o nome convencional para "parâmetro que eu não uso".
 
     return (

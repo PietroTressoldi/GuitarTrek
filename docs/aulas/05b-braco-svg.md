@@ -135,6 +135,8 @@ Em `web/src/components/Layout.tsx`, acrescente `Music` no import do `lucide-reac
 
 **✅ O que você deve ver:** "Escalas" no menu, com o ícone de nota musical. Clicando, aparece o título.
 
+> 🔁 **Mais tarde:** na Parte 4 da aula 05d, Escalas e Acordes viram **uma página só**, a **Braço** (`/braco`). A rota `escalas` e esse item de menu saem de lá. Por enquanto, siga como está.
+
 ---
 
 ## Parte 3 — O componente `<Fretboard>`, uma camada por vez

@@ -1,8 +1,9 @@
 import { describe, it, expect } from 'vitest'
 import { transpor, distancia } from './notas'
 import { notasDaEscala } from './escalas'
-import { notasDoAcorde } from './acordes'
-import { grau } from './notas'
+import { ACORDES, FORMAS, notasDoAcorde, voicing, type Forma, type TipoAcorde } from './acordes'
+import { grau, NOTAS } from './notas'
+import { notaNaCasa } from './braco'
 
 describe('notas', () => {
     it('sobe um tom de C para D', () => {
@@ -59,4 +60,30 @@ describe('graus', () => {
     })
 })
 
-
+describe('voicings', () => {
+    it('Lá maior aberto', () => {
+        expect(voicing('A', 'maior', 'A')).toEqual(['0-0', '1-2', '2-2', '3-2', '4-0'])
+    })
+    it('F com pestana na casa 1', () => {
+        expect(voicing('F', 'maior', 'E')).toEqual(['0-1', '1-1', '2-2', '3-3', '4-3', '5-1'])
+    })
+    it('C aberto na forma de C', () => {
+        expect(voicing('C', 'maior', 'C')).toEqual(['0-0', '1-1', '2-0', '3-2', '4-3'])
+    })
+    it('todas as formas CAGED só tocam notas do acorde, com tônica e 3ª, dentro do braço', () => {
+        for (const raiz of NOTAS)
+            for (const tipo of Object.keys(ACORDES) as TipoAcorde[])
+                for (const forma of Object.keys(FORMAS) as Forma[]) {
+                    const tocadas = voicing(raiz, tipo, forma).map((k) => {
+                        const [corda, casa] = k.split('-').map(Number)
+                        expect(casa).toBeGreaterThanOrEqual(0)
+                        expect(casa).toBeLessThanOrEqual(17)
+                        return notaNaCasa(corda, casa)
+                    })
+                    const acorde = notasDoAcorde(raiz, tipo)
+                    expect(tocadas.every((n) => acorde.includes(n))).toBe(true)
+                    expect(tocadas).toContain(acorde[0])
+                    expect(tocadas).toContain(acorde[1])
+                }
+    })
+})

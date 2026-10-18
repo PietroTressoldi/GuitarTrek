@@ -127,6 +127,10 @@
   }
   body {
     @apply bg-background text-foreground antialiased;
+    caret-color: transparent; /* sem cursor de texto piscando ao clicar em botão/SVG */
+  }
+  input, textarea, [contenteditable] {
+    caret-color: auto;
   }
   h1, h2, h3 {
     @apply font-heading font-semibold leading-tight tracking-tight;

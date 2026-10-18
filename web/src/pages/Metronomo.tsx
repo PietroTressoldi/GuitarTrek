@@ -78,11 +78,11 @@ export function Metronomo() {
                     </div>
 
                     <div className="flex items-center justify-center gap-8">
-                        <BotaoRedondo rotulo="Diminuir BPM" onClick={() => m.mudarBpm(m.bpm - 1)}>
+                        <BotaoRedondo rotulo="Diminuir BPM" onClick={() => { m.mudarBpm(m.bpm - 1); tique((m.bpm - 31) / 270) }}>
                             <Minus className="size-4" />
                         </BotaoRedondo>
                         <Knob rotulo="BPM" valor={m.bpm} min={30} max={300} onChange={m.mudarBpm} />
-                        <BotaoRedondo rotulo="Aumentar BPM" onClick={() => m.mudarBpm(m.bpm + 1)}>
+                        <BotaoRedondo rotulo="Aumentar BPM" onClick={() => { m.mudarBpm(m.bpm + 1); tique((m.bpm - 29) / 270) }}>
                             <Plus className="size-4" />
                         </BotaoRedondo>
                     </div>
