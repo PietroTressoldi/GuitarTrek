@@ -70,6 +70,8 @@ GuitarTrek/
 ## Trilha de tasks — por ordem de prioridade
 
 > **Ordem atual (out/2026): improviso puxado para frente.** Depois do 3, a sequência é **5 → 5.5 → 12 (afinador, que traz o microfone) → 17 (Laboratório de improviso)**, e então volta para 4, 6, 7… A numeração abaixo continua a mesma, para bater com as issues.
+>
+> **Rumo ao produto:** quando o núcleo estiver pronto, o **15 (Contas) vem antes do 9 (Deploy)**, para abrir um **beta fechado** com amigos músicos (contas por convite). Depois do feedback, vira assinatura com plano grátis. Detalhes em "Produto: beta e assinatura", no fim.
 
 ### 1. Setup full stack
 Docker Compose com Postgres, `dotnet new webapi` + EF Core/Npgsql, `/api/health`, Vite react-ts + Tailwind + shadcn/ui, e a chamada `/api/health` aparecendo na tela.
@@ -154,7 +156,7 @@ Fora o wizard:
 *Você aprende:* telas compostas, Context e componentes de calendário.
 
 ### 9. Deploy + PWA + lembretes
-Deploy com HTTPS: API + Postgres gerenciado num serviço com free tier, e o front estático. PWA instalável com cache offline. Lembrete inteligente via Web Push + `BackgroundService`: chega no horário em que você costuma treinar, com textos variados e o streak em jogo. A partir daqui você treina pelo celular.
+Deploy com HTTPS, custo zero no beta: front no **Cloudflare Pages**; API + Postgres + worker do separador numa VM **Oracle Cloud Always Free** (ARM, 24 GB) com o `docker compose` que já existe, e backup diário do banco. Plano B: GitHub Student Pack (crédito DigitalOcean + domínio). E-mail de convite/senha pelo Resend (grátis). Botão "Enviar feedback" no app (tabela `Feedback`). PWA instalável com cache offline. Lembrete inteligente via Web Push + `BackgroundService`: chega no horário em que você costuma treinar, com textos variados e o streak em jogo. A partir daqui você treina pelo celular.
 
 ### 10. Gamificação completa
 - Conquistas com medalhas e recompensas surpresa.
@@ -182,7 +184,7 @@ Microfone + detecção de pitch por autocorrelação, com ponteiro animado e cen
 Um resumo estilo "Wrapped" (horas, BPMs ganhos, streak, recordes, evolução do radar), com animações e um card compartilhável em imagem.
 
 ### 15. Contas e autenticação
-ASP.NET Core Identity + JWT, login e cadastro. A assinatura (Stripe) fica para quando virar produto.
+ASP.NET Core Identity + JWT, login. **Vem antes do 9.** No beta, sem cadastro aberto: contas **por convite**. O usuário já nasce com `Plano` (Gratis/Pro) + `ExpiraEm`, para a assinatura entrar sem migração grande; no beta todos são Pro.
 
 ### 16. IA
 Planos e sugestões de músicas via Claude API (`claude-sonnet-5-5`), com saída JSON validada pelo mesmo código do gerador.
@@ -202,8 +204,43 @@ Para a improvisação, que é a habilidade mais importante: exercícios em tempo
 
 *Você aprende:* microfone e análise de áudio em tempo real, sincronizar eventos com o relógio do áudio, máquina de estados de um jogo e dados de jogo (fases e desafios) em TypeScript.
 
+### 20. Separador de faixas (estilo Moises) 🎚️
+Você envia uma música (**só upload de arquivo**: link do YouTube viola os termos do YouTube) e o app devolve a faixa **sem guitarra** e a **só guitarra**, para treinar o solo com a banda.
+- **Modelo:** Demucs `htdemucs_6s` (MIT), que separa bateria, baixo, voz, piano, guitarra e outros. A guitarra sai boa, não perfeita.
+- **Back (o dev implementa, roteiro curto):** `StemJob` (UserId, arquivo, status, expira em 7 dias, caminhos das faixas); `POST/GET /api/stems`, stream das faixas; `BackgroundService` que apaga os vencidos. Upload até ~20 MB, mp3/wav/m4a.
+- **Worker Python (Claude):** container com Demucs que pega o próximo job no Postgres. `MODO=cpu` no beta (na VM Oracle, 3–10 min por música) e `MODO=modal` para vender (GPU por uso, ~US$ 0,01–0,05 por música). Arquivos no Cloudflare R2 quando sair da VM.
+- **Front (aula):** upload com progresso, status por polling, player multi-faixa com mute/solo, loop A-B e velocidade. A faixa vira base para o Laboratório de improviso.
+- Grátis: 2 músicas/mês. Pro: ilimitado.
+
+*Você aprende:* upload de arquivo, fila de jobs, polling, player multi-faixa sincronizado.
+
 ### Futuro
-Player de tablatura estilo Songsterr com alphaTab, usando arquivos Guitar Pro que você tiver. Também: detecção de tempo pelo microfone e gravação de sessões.
+Player de tablatura estilo Songsterr com alphaTab, usando arquivos Guitar Pro que você tiver. Também: detecção de tempo pelo microfone e gravação de sessões. E, por ordem de valor ÷ esforço:
+- **"Envie a música, receba a aula":** detectar BPM, tom e acordes da música separada → progressão no montador, escala no braço e exercício de improviso em cima da música real.
+- **Solo no braço:** `usePitch` na faixa só guitarra, mostrando o solo no `<Fretboard>` em câmera lenta (monofônico).
+- **Modo canhoto, afinações alternativas e modo baixo** (4 cordas): pouco código, o `theory/` e o `<Fretboard>` já são genéricos.
+- **Plano para professores:** o professor monta treinos para os alunos e acompanha o progresso; paga por aluno.
+- **Indicação** (os dois ganham 1 mês Pro), plano anual, preço de estudante.
+- **Duelo de improviso:** dois amigos gravam 30 s sobre a base do desafio do dia e os outros votam.
+
+## Produto: beta e assinatura
+**Fase A — beta fechado (≈ R$ 0/mês):** núcleo pronto (metrônomo, braço, backing, improviso, progresso) → 15 → 9 → convites para amigos músicos, todos Pro. Feedback pelo botão do app + grupo de WhatsApp. Mínimo de LGPD: termos de uso, política de privacidade, apagar conta sob pedido; no separador, o usuário é responsável pelo arquivo e tudo some em 7 dias. Opcional: PostHog (grátis) para ver o que é usado. Landing page com lista de espera.
+
+**Fase B — assinatura (freemium):** o grátis tem que ser útil sozinho; o Pro destrava o que organiza e faz evoluir.
+
+| Grátis | Pro |
+|---|---|
+| Metrônomo, drone, afinador | Montador de treino e Agenda / Treino de hoje |
+| Braço (escalas, acordes, CAGED) | Laboratório de improviso completo |
+| Backing tracks prontas | Montador de backing tracks salvas |
+| Biblioteca, progresso básico | Gamificação completa, retrospectiva, IA |
+| Improviso: 1ª fase + desafio do dia | Separador ilimitado (grátis: 2/mês) |
+
+- Back: policy `[Authorize(Policy = "Pro")]` nos endpoints Pro. Front: componente `<Trancado>` mostra a tela com cadeado e selo **Pro** (a pessoa vê o que está perdendo).
+- Pagamento: Stripe (Pix e cartão, ~4%) ou Mercado Pago; webhook no .NET liga/desliga o `Plano`.
+- Empresa: MEI (≈ R$ 80/mês, exige 18 anos).
+- Custo fixo estimado ao vender: ≈ R$ 100–150/mês + variável (GPU por música, taxa de pagamento). A R$ 15–20/mês, ~10 assinantes pagam o fixo.
+- No fim do beta, perguntar aos amigos o que pagariam e o que tirariam do grátis.
 
 ## Como vamos trabalhar
 1. **ClickUp:** depois que você autorizar o conector, eu crio uma lista "GuitarTrek" com uma task por módulo (1–16), subtasks com os passos e a prioridade na ordem acima.
