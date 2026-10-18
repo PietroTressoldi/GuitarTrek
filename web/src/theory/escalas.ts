@@ -20,3 +20,14 @@ export function notasDaEscala(tonica: Nota, escala: NomeEscala): Nota[] {
 export function estaNaEscala(nota: Nota, tonica: Nota, escala: NomeEscala): boolean {
     return notasDaEscala(tonica, escala).includes(nota)
 }
+
+export const ROTULOS_ESCALA = {
+    maior: 'Maior',
+    menor: 'Menor natural',
+    pentaMenor: 'Pentatônica menor',
+    pentaMaior: 'Pentatônica maior',
+    blues: 'Blues',
+    dorico: 'Dórico',
+    mixolidio: 'Mixolídio',
+    lidio: 'Lídio',
+} satisfies Record<NomeEscala, string>

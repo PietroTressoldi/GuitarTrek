@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GuitarTrek — Backing tracks (mockup)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap" rel="stylesheet">
+<style>
+  /* Tokens copiados do tema "amp" de web/src/index.css */
+  :root {
+    --background: #141110; --foreground: #f1e8dc; --card: #2d231f; --primary: #f2a541; --primary-foreground: #2b1a05;
+    --secondary: #3a2e28; --muted-foreground: #a89a8a; --accent: #3d312b; --border: #3d312b; --sombra: rgb(0 0 0 / .55);
+    --cat-escalas: #f2c94c; --cat-ritmo: #e85d9e;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--background); color: var(--foreground); font-family: "Archivo", system-ui, sans-serif; font-size: 14px; }
+  .h { font-stretch: 125%; font-weight: 600; letter-spacing: -.01em; }
+  .muted { color: var(--muted-foreground); }
+  .rot { font-size: 11px; color: var(--muted-foreground); font-stretch: 112%; letter-spacing: .06em; text-transform: uppercase; }
+  .pilot { width: 6px; height: 6px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 8px var(--primary); display: inline-block; }
+
+  .app { display: flex; min-height: 100vh; }
+  aside { width: 224px; border-right: 1px solid var(--border); padding: 32px 16px; display: flex; flex-direction: column; gap: 40px; flex-shrink: 0; }
+  aside .logo { padding: 0 12px; font-size: 18px; }
+  aside nav { display: flex; flex-direction: column; gap: 2px; }
+  aside a { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-radius: 6px; color: var(--muted-foreground); text-decoration: none; font-weight: 500; }
+  aside a.on { background: var(--accent); color: var(--foreground); }
+  aside a.on .pilot { margin-left: auto; }
+  main { flex: 1; padding: 48px; display: flex; flex-direction: column; gap: 24px; max-width: 1280px; min-width: 0; }
+
+  .topo { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+  h1 { font-size: 36px; }
+
+  /* Alternador (igual ao do app) */
+  .alt { display: inline-flex; gap: 2px; padding: 4px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); }
+  .alt > span { display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 5px; color: var(--muted-foreground); }
+  .alt > span.on { background: var(--secondary); color: var(--foreground); }
+  .sel { display: inline-flex; align-items: center; gap: 10px; padding: 9px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--card); }
+  .sel::after { content: "▾"; color: var(--muted-foreground); font-size: 11px; }
+
+  /* 1. Transporte: o "painel do amp" */
+  .transporte { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; padding: 16px 20px; border: 1px solid var(--border); border-radius: 12px;
+                background: linear-gradient(var(--card), #261d1a); box-shadow: inset 0 1px 0 rgb(255 255 255 / .04); }
+  .play { width: 56px; height: 56px; border-radius: 50%; border: 0; background: var(--primary); color: var(--primary-foreground); display: grid; place-items: center;
+          box-shadow: inset 0 -3px 0 rgb(0 0 0 / .2); }
+  .campo { display: flex; flex-direction: column; gap: 6px; }
+  .sep { width: 1px; align-self: stretch; background: var(--border); }
+  .bpm { display: flex; align-items: center; gap: 4px; }
+  .bpm b { font-size: 28px; line-height: 1; min-width: 64px; text-align: center; font-variant-numeric: tabular-nums; }
+  .bpm i { font-style: normal; width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border); display: grid; place-items: center; color: var(--muted-foreground); }
+  .atalho { margin-left: auto; font-size: 12px; }
+  kbd { font-family: inherit; font-size: 11px; padding: 2px 6px; border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 4px; }
+
+  /* 2. Agora + grade */
+  .palco { display: grid; grid-template-columns: 300px 1fr; gap: 24px; }
+  .agora { padding: 24px; border: 1px solid var(--border); border-radius: 12px; background: var(--card); display: flex; flex-direction: column; gap: 20px;
+           box-shadow: inset 0 2px 12px var(--sombra); }
+  .agora .acorde { font-size: 88px; line-height: .9; }
+  .agora .grau { font-size: 18px; color: var(--primary); }
+  .tempos { display: flex; gap: 10px; }
+  .tempos i { width: 14px; height: 14px; border-radius: 50%; background: var(--secondary); border: 2px solid #120d0b; }
+  .tempos i.on { background: var(--primary); box-shadow: 0 0 12px var(--primary); }
+  .tempos i.um.on { background: var(--foreground); box-shadow: 0 0 12px var(--foreground); }
+  .proximo { display: flex; justify-content: space-between; align-items: baseline; padding-top: 16px; border-top: 1px solid var(--border); }
+  .proximo b { font-size: 26px; }
+
+  .grade { display: grid; grid-template-columns: repeat(4, 1fr); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; align-self: start; }
+  .c { position: relative; padding: 14px 16px 18px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 4px; }
+  .c:nth-child(4n) { border-right: 0; }
+  .c:nth-last-child(-n+4) { border-bottom: 0; }
+  .c .n { position: absolute; top: 10px; right: 12px; font-size: 10px; color: var(--muted-foreground); opacity: .6; }
+  .c b { font-size: 22px; color: var(--muted-foreground); }
+  .c small { font-size: 12px; color: var(--muted-foreground); opacity: .7; }
+  .c.passou b { color: var(--foreground); opacity: .55; }
+  .c.on { background: var(--secondary); }
+  .c.on b { color: var(--foreground); display: flex; align-items: center; gap: 10px; }
+  .c.on small { color: var(--primary); opacity: 1; }
+  .c.on .barra { position: absolute; left: 0; bottom: 0; height: 2px; width: 62%; background: var(--primary); }
+
+  /* 3. Braço */
+  .braco { border: 1px solid var(--border); border-radius: 12px; background: var(--card); padding: 20px 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  .braco .cab { display: flex; align-items: flex-end; gap: 20px; flex-wrap: wrap; }
+  .braco .cab .h { font-size: 15px; margin-right: auto; }
+  #braco { width: 100%; height: auto; display: block; }
+  .legenda { display: flex; gap: 24px; flex-wrap: wrap; font-size: 12px; color: var(--muted-foreground); }
+  .legenda span { display: flex; align-items: center; gap: 8px; }
+  .legenda i { width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
+
+  /* Notas de design */
+  .notas { margin-top: 24px; padding-top: 24px; border-top: 1px dashed var(--border); display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; }
+  .notas div { line-height: 1.55; color: var(--muted-foreground); }
+  .notas b { color: var(--foreground); display: block; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <span class="logo h">GuitarTrek</span>
+    <nav>
+      <a>Hoje</a><a>Agenda</a><a>Metrônomo</a><a>Biblioteca</a><a>Progresso</a><a>Afinador</a><a>Braço</a>
+      <a class="on">Backing tracks <span class="pilot"></span></a>
+    </nav>
+  </aside>
+
+  <main>
+    <div class="topo">
+      <h1 class="h">Backing tracks</h1>
+      <div class="campo">
+        <span class="rot">Progressão</span>
+        <span class="sel">Blues de 12</span>
+      </div>
+    </div>
+
+    <!-- 1. TRANSPORTE -->
+    <div class="transporte">
+      <button class="play" aria-label="Parar">
+        <svg width="18" height="18" viewBox="0 0 18 18"><rect x="3" y="2" width="4" height="14" rx="1" fill="currentColor"/><rect x="11" y="2" width="4" height="14" rx="1" fill="currentColor"/></svg>
+      </button>
+      <div class="campo"><span class="rot">Tom</span><span class="sel h" style="font-size:16px">A</span></div>
+      <div class="sep"></div>
+      <div class="campo"><span class="rot">BPM</span><div class="bpm"><i>−</i><b class="h">90</b><i>+</i></div></div>
+      <div class="sep"></div>
+      <div class="campo"><span class="rot">Estilo</span>
+        <div class="alt"><span class="on"><span class="pilot"></span>Rock</span><span>Pop</span><span>Funk</span><span>Shuffle</span></div>
+      </div>
+      <span class="atalho muted"><kbd>Espaço</kbd> toca / para</span>
+    </div>
+
+    <!-- 2. AGORA + GRADE -->
+    <div class="palco">
+      <div class="agora">
+        <span class="rot">Agora · compasso 3 de 12</span>
+        <div>
+          <div class="acorde h">A7</div>
+          <div class="grau h">I7</div>
+        </div>
+        <div class="tempos"><i class="um on"></i><i class="on"></i><i class="on" id="t3"></i><i id="t4"></i></div>
+        <div class="proximo">
+          <span class="rot">Próximo</span>
+          <span><b class="h">A7</b> <span class="muted">I7</span></span>
+        </div>
+      </div>
+
+      <div class="grade" id="grade"></div>
+    </div>
+
+    <!-- 3. BRAÇO -->
+    <div class="braco">
+      <div class="cab">
+        <span class="h">No braço</span>
+        <div class="campo"><span class="rot">Escala</span><span class="sel">Blues de A</span></div>
+        <div class="campo"><span class="rot">Região</span>
+          <div class="alt"><span class="on"><span class="pilot"></span>Casas 5–8</span><span>7–10</span><span>10–13</span><span>Todo o braço</span></div>
+        </div>
+        <div class="campo"><span class="rot">Mostrar</span>
+          <div class="alt"><span>Notas</span><span class="on"><span class="pilot"></span>Graus</span></div>
+        </div>
+      </div>
+      <svg id="braco" viewBox="0 0 1180 250" role="img" aria-label="Braço: blues de A nas casas 5 a 8, com o A7 aceso"></svg>
+      <div class="legenda">
+        <span><i style="background:var(--primary)"></i>Tônica do acorde</span>
+        <span><i style="background:var(--foreground)"></i>Notas do acorde atual (A7)</span>
+        <span><i style="border:2px solid var(--cat-escalas);opacity:.45"></i>Resto da escala</span>
+        <span><i style="border:2px dashed var(--muted-foreground)"></i>Próxima troca (D7, compasso 5)</span>
+      </div>
+    </div>
+
+    <div class="notas">
+      <div><b>1 · Transporte</b>Um painel só, como o de um amp: Tocar grande, BPM com −/+, o estilo num Alternador e o atalho do espaço visível. O painel flutuante do metrônomo some nesta página.</div>
+      <div><b>2 · Agora</b>O acorde atual grande com o grau, as 4 luzes dos tempos (o 1 em branco, como o acento do metrônomo) e o próximo acorde. Parado, mostra o 1º compasso em vez da barra branca solta.</div>
+      <div><b>3 · Grade</b>Cada compasso mostra a cifra e o grau. Os que já passaram ficam mais claros, o atual tem a luz piloto e uma barrinha que enche ao longo do compasso.</div>
+      <div><b>4 · Braço (aula 05e + 18c)</b>Só a região escolhida aparece acesa. As notas do acorde atual ficam cheias, com o grau; o resto da escala fica apagado. No último tempo, o próximo acorde aparece tracejado. Repare no 3 (C#): ele não está na escala de blues, mas está no A7.</div>
+    </div>
+  </main>
+</div>
+
+<script>
+  // Grade: blues de 12 em A, tocando o compasso 3
+  const compassos = [['A7','I7'],['D7','IV7'],['A7','I7'],['A7','I7'],['D7','IV7'],['D7','IV7'],['A7','I7'],['A7','I7'],['E7','V7'],['D7','IV7'],['A7','I7'],['E7','V7']]
+  const atual = 2
+  document.getElementById('grade').innerHTML = compassos.map(([cifra, grau], i) => `
+    <div class="c ${i < atual ? 'passou' : ''} ${i === atual ? 'on' : ''}">
+      <span class="n">${i + 1}</span>
+      <b class="h">${i === atual ? '<span class="pilot"></span>' : ''}${cifra}</b>
+      <small class="h">${grau}</small>
+      ${i === atual ? '<span class="barra"></span>' : ''}
+    </div>`).join('')
+
+  // Braço: cordas de cima para baixo = e B G D A E (igual ao <Fretboard>)
+  const ns = 'http://www.w3.org/2000/svg'
+  const svg = document.getElementById('braco')
+  const CASAS = 15, X0 = 50, LARG = 74, Y0 = 26, ALT = 38
+  const xCasa = (c) => X0 + c * LARG                         // posição do traste
+  const xNota = (c) => (c === 0 ? X0 - 24 : xCasa(c) - LARG / 2)
+  const yCorda = (k) => Y0 + k * ALT                          // k: 0 = mi aguda
+  const el = (tag, attrs, txt) => { const e = document.createElementNS(ns, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (txt) e.textContent = txt; svg.appendChild(e); return e }
+
+  // faixa da região (casas 5 a 8)
+  el('rect', { x: xCasa(4), y: Y0 - 18, width: LARG * 4, height: ALT * 5 + 36, rx: 8, fill: 'var(--primary)', opacity: .06 })
+  for (let c = 0; c <= CASAS; c++) el('line', { x1: xCasa(c), y1: Y0, x2: xCasa(c), y2: yCorda(5), stroke: c === 0 ? 'var(--foreground)' : 'var(--accent)', 'stroke-width': c === 0 ? 5 : 2 })
+  for (let k = 0; k < 6; k++) el('line', { x1: X0, y1: yCorda(k), x2: xCasa(CASAS), y2: yCorda(k), stroke: '#8a7d70', 'stroke-width': 1 + k * 0.35 })
+  ;[3, 5, 7, 9].forEach((c) => el('circle', { cx: xNota(c), cy: (yCorda(2) + yCorda(3)) / 2, r: 5, fill: 'var(--accent)' }))
+  ;[12].forEach((c) => { el('circle', { cx: xNota(c), cy: (yCorda(1) + yCorda(2)) / 2, r: 5, fill: 'var(--accent)' }); el('circle', { cx: xNota(c), cy: (yCorda(3) + yCorda(4)) / 2, r: 5, fill: 'var(--accent)' }) })
+  for (let c = 1; c <= CASAS; c++) el('text', { x: xNota(c), y: yCorda(5) + 34, 'text-anchor': 'middle', fill: 'var(--muted-foreground)', 'font-size': 13 }, c)
+
+  // [corda, casa, grau relativo ao A7]: k 0 = mi aguda ... 5 = mi grave
+  const escala = [[5,5,'1'],[5,8,'b3'],[4,5,'4'],[4,6,'b5'],[4,7,'5'],[3,5,'b7'],[3,7,'1'],[2,5,'b3'],[2,7,'4'],[2,8,'b5'],[1,5,'5'],[1,8,'b7'],[0,5,'1'],[0,8,'b3']]
+  const acorde = [[5,5,'1'],[4,7,'5'],[3,5,'b7'],[2,6,'3'],[1,5,'5'],[0,5,'1']] // A7, forma de E na casa 5
+  const proximo = [[4,5],[3,7],[2,5],[1,7],[0,5]]                                  // D7, forma de A na casa 5
+  const naLista = (lista, k, c) => lista.some(([a, b]) => a === k && b === c)
+
+  for (const [k, c, g] of escala) {
+    if (naLista(acorde, k, c)) continue
+    el('circle', { cx: xNota(c), cy: yCorda(k), r: 15, fill: 'var(--card)', stroke: 'var(--cat-escalas)', 'stroke-width': 2, opacity: .45 })
+    el('text', { x: xNota(c), y: yCorda(k) + 4.5, 'text-anchor': 'middle', fill: 'var(--cat-escalas)', 'font-size': 12, 'font-weight': 600, opacity: .55 }, g)
+  }
+  for (const [k, c] of proximo) el('circle', { cx: xNota(c), cy: yCorda(k), r: 20, fill: 'none', stroke: 'var(--muted-foreground)', 'stroke-width': 1.5, 'stroke-dasharray': '4 3' })
+  for (const [k, c, g] of acorde) {
+    const tonica = g === '1'
+    el('circle', { cx: xNota(c), cy: yCorda(k), r: 16, fill: tonica ? 'var(--primary)' : 'var(--foreground)', style: tonica ? 'filter: drop-shadow(0 0 6px rgb(242 165 65 / .6))' : '' })
+    el('text', { x: xNota(c), y: yCorda(k) + 4.5, 'text-anchor': 'middle', fill: 'var(--primary-foreground)', 'font-size': 13, 'font-weight': 700 }, g)
+  }
+
+  // tempos acendendo (só para dar vida ao mockup)
+  const luzes = [...document.querySelectorAll('.tempos i')]
+  let t = 2
+  setInterval(() => { t = (t + 1) % 4; luzes.forEach((l, i) => l.classList.toggle('on', i <= t)) }, 667)
+</script>
+</body>
+</html>

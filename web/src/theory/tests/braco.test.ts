@@ -1,5 +1,7 @@
 import { expect, describe, it } from "vitest";
-import { notaNaCasa, shape } from "./braco";
+import { aoRedor, notaNaCasa, shape } from "../braco";
+import { notasDaEscala } from "../escalas";
+import { voicing } from "../acordes";
 
 describe('braço', () => {
     it('casa 5 da 6ª corda é Lá', () => {
@@ -30,5 +32,15 @@ describe('shapes', () => {
         expect(blues).toContain('4-6')
         expect(blues).toContain('2-8')
         expect(blues.length).toBe(14)
+    })
+})
+
+describe('escala ao redor do acorde', () => {
+    it('A7 na forma de E + penta menor = a caixa 1', () => {
+        const caixa = aoRedor(voicing('A', 'dom7', 'E'), notasDaEscala('A', 'pentaMenor'))
+        expect(caixa.sort()).toEqual(shape('A', 'pentaMenor', 0).sort())
+    })
+    it('não passa da pestana', () => {
+        expect(aoRedor(['0-0'], ['D#'])).toEqual(['3-1'])
     })
 })

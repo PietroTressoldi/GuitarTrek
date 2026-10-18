@@ -72,6 +72,28 @@ export const FORMAS = {
     },
 }
 
+export const ROTULOS_ACORDE = {
+    maior: 'Maior',
+    menor: 'Menor',
+    dom7: '7',
+    m7: 'm7',
+    maj7: '7M',
+} satisfies Record<TipoAcorde, string>
+
+
+
+const SIMBOLOS = {
+    maior: '',
+    menor: 'm',
+    dom7: '7',
+    m7: 'm7',
+    maj7: '7M',
+} satisfies Record<TipoAcorde, string>
+
+export function cifra(raiz: Nota, tipo: TipoAcorde) {
+    return raiz + SIMBOLOS[tipo]
+}
+
 export type Forma = keyof typeof FORMAS
 
 export function voicing(raiz: Nota, tipo: TipoAcorde, forma: Forma): string[] {

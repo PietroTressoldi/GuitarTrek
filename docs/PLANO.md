@@ -69,7 +69,9 @@ GuitarTrek/
 
 ## Trilha de tasks — por ordem de prioridade
 
-> **Ordem atual (out/2026): improviso puxado para frente.** Depois do 3, a sequência é **5 → 5.5 → 12 (afinador, que traz o microfone) → 17 (Laboratório de improviso)**, e então volta para 4, 6, 7… A numeração abaixo continua a mesma, para bater com as issues.
+> **Ordem atual (out/2026): improviso puxado para frente.** Depois do 3, a sequência é **5 → 5.5 (18a, 18c) → 22 (multilíngua, enquanto ainda são poucas páginas) → 5.5 (18b, 18d) → 12 (afinador, que traz o microfone) → 17 (Laboratório de improviso)**, e então volta para 4, 6, 7… A numeração abaixo continua a mesma, para bater com as issues.
+>
+> **Em paralelo, desde já:** Instagram, TikTok e Shorts mostrando o app na prática (módulo 23). Não precisa esperar o app ficar pronto.
 >
 > **Rumo ao produto:** quando o núcleo estiver pronto, o **15 (Contas) vem antes do 9 (Deploy)**, para abrir um **beta fechado** com amigos músicos (contas por convite). Depois do feedback, vira assinatura com plano grátis. Detalhes em "Produto: beta e assinatura", no fim.
 
@@ -101,8 +103,16 @@ CRUD com EF Core, migrations e seed com cerca de 30 exercícios originais. Front
 Uma base para treinar junto, como o drone, mas com **bateria, baixo e acordes**. É o metrônomo evoluído: o mesmo agendador do `useMetronome`, agendando 16 passos por compasso em vez de 1 clique por tempo.
 - **Estilo** = um padrão de 1 compasso escrito em TypeScript (bumbo/caixa/chimbal como `'x...x...'`, baixo e acordes por grau, swing). Para começar: rock, blues shuffle, funk, pop, balada e bossa.
 - **Progressão** = acordes por compasso em graus (`I7 IV7 V7`), valendo para qualquer tom: blues de 12, I–V–vi–IV, ii–V–I, I–vi–IV–V, andaluza e vamp modal.
-- **Montador:** uma grade de compassos. Você clica, escolhe o acorde pelo grau e salva (API `BackingTrack`). Estilos e progressões prontas ficam no front.
+- Estilos e progressões prontas ficam no front.
+- **18d — Monte a sua backing track:** o usuário cria a própria base.
+  - Uma grade com quantos compassos quiser (4, 8, 12, 16...). Você clica num compasso e escolhe o acorde **por grau** (`IV7`) ou **por cifra** (`D7`).
+  - **Seções** (A, B, refrão) com repetição, e um estilo por seção (verso em funk, refrão em rock).
+  - Tom, BPM, estilo e mixer ficam salvos junto.
+  - Dá para **começar de uma progressão pronta** e editar.
+  - Salvar, duplicar e renomear pela API `BackingTrack` (o dev implementa; o `Bars` em jsonb ganha `Secoes`).
+  - No grátis, as prontas mais 3 salvas; no Pro, ilimitadas.
 - **Ao tocar:** o compasso atual fica aceso, o acorde aparece grande e a escala sugerida aparece no `<Fretboard>`. Tem um mixer com volume e mute por instrumento.
+- **Tela (mockup aprovado em `docs/mockups/backing.html`):** transporte num painel só, "Agora" com grau, luzes dos tempos e próximo acorde, grade com cifra + grau, e o braço com a escala em volta da forma CAGED do acorde atual (`aoRedor`, aula 05e), escolhendo a forma mais perto da região atual e mostrando a próxima troca tracejada. O painel flutuante do metrônomo some nesta página.
 - **Som:** samples via `smplr` (bateria, baixo, piano/órgão), que aceita o horário exato de cada nota no relógio do áudio.
 - Os blocos de improviso do montador de treino (módulo 7) podem apontar para uma backing track.
 
@@ -214,17 +224,83 @@ Você envia uma música (**só upload de arquivo**: link do YouTube viola os ter
 
 *Você aprende:* upload de arquivo, fila de jobs, polling, player multi-faixa sincronizado.
 
+### 21. Tabs + Estudo de trecho 🎼
+Para treinar **as músicas de que você gosta**: a tab tocando, o trecho difícil em loop, começando devagar e subindo a velocidade.
+
+**Sem catálogo de tabs de terceiros.**
+- No Songsterr e no Ultimate Guitar, as tabs são escritas pela comunidade.
+- Para as editoras, tab de música dos outros sem licença é uso não autorizado. Os sites grandes resolvem pagando licença: o Ultimate Guitar tem acordo com Sony, EMI, Hal Leonard e outras.
+- Aqui o modelo é **"traga a sua tab"**, igual ao separador (20): o arquivo fica **privado** na conta, e o usuário é responsável por ele.
+
+**21a — Player:**
+- **alphaTab** (gratuito, MPL-2.0) abre `.gp`, `.gp5`, `.gpx` e MusicXML.
+- Cursor de tempo, contagem antes de começar, mute e solo por instrumento, som pelo próprio sintetizador do alphaTab.
+- Entidade `Tab` (UserId, arquivo, título, artista, último trecho estudado), com upload privado (o dev implementa).
+
+**21b — Estudo de trecho** ⭐ (o coração do módulo):
+- Você marca os compassos de início e fim, começa em X% da velocidade e sobe Y% a cada N repetições limpas, até 100%.
+- É o speed trainer do `useMetronome` generalizado num hook `useEstudoDeTrecho` (trecho, velocidade atual, regra de subida e contador de repetições).
+- O mesmo hook serve para o loop do YouTube (11) e para o player de faixas separadas (20).
+- Os trechos ficam salvos, o BPM alcançado vira `PracticeLog` (6), e um trecho pode entrar no plano de treino (7).
+
+**21c — Tab no braço:** a nota que toca acende no `<Fretboard>`, com o grau dela sobre o acorde.
+
+**Depois:**
+- **21d — Editor de licks e riffs:** no formato de texto alphaTex. Os exercícios da Biblioteca (4) também passam a aparecer em tab.
+- **21e — O app confere pelo microfone:** você toca e o `usePitch` (12) confere a nota (monofônico, estilo Yousician).
+
+*Você aprende:* integrar uma biblioteca grande num componente React, sincronizar a UI com o tempo de um player, e um hook reaproveitado em 3 players diferentes.
+
+### 22. Multilíngua 🌎 (PT-BR, EN, ES)
+Para alcançar além do Brasil: inglês é o maior público, e espanhol cobre a América Latina, com fuso e realidade de preço parecidos com os do Brasil. **Entra logo depois da 18c**, enquanto ainda são poucas páginas; daí em diante, toda tela nova já nasce traduzível.
+- **Dicionário tipado** em `web/src/i18n/`: `Record<Idioma, Textos>` com um `t('chave')` via Context. É o mesmo `Record` + `satisfies` dos rótulos, sem biblioteca nova: se faltar uma tradução, o TypeScript avisa. Se o volume de texto crescer muito, avaliar o `react-i18next`.
+- **Cuidados de música:**
+  - Nome das notas configurável entre `C D E` e `Dó Ré Mi` (no espanhol, `Do Re Mi` é o comum).
+  - Os `ROTULOS_ESCALA` e `ROTULOS_ACORDE` passam a vir do dicionário.
+  - As cifras (`A7`, `Dm7`) ficam iguais em todo idioma.
+- **Idioma:** detectado pelo navegador e salvo no perfil.
+- **Preço:** em BRL no Brasil e em USD fora (Stripe).
+- A landing page (23) também sai nos 3 idiomas.
+- Regra nova no `CLAUDE.md`: texto de interface só via `t()`.
+
+*Você aprende:* Context, chaves tipadas e formatação por idioma (`Intl.NumberFormat`, `Intl.DateTimeFormat`).
+
+### 23. Marca, redes e landing page 📣
+**Redes (começam já, em paralelo com o app):**
+- Instagram, TikTok e YouTube Shorts, com o mesmo vídeo vertical nos três. Gravação de tela no OBS + guitarra, editado no CapCut, tudo grátis. Ritmo de 2 ou 3 vídeos por semana.
+- **Linhas de conteúdo:**
+  - "a escala em volta do acorde": o braço acendendo enquanto a backing toca e você improvisa por cima;
+  - o desafio de improviso do dia;
+  - antes e depois de BPM;
+  - bastidores de "construindo um app de guitarra" (build in public).
+
+**Landing page:**
+- **Estilo:** dark premium com a identidade H (tolex, cores de pedal das categorias, luz piloto âmbar, Archivo expandida), usando os mesmos tokens do `web/src/index.css`. Referências: pickupmusic.com e guitarpracticehub.com. Antes, um mockup em `docs/mockups/landing.html`.
+- **Estrutura**, inspirada no pickupmusic.com:
+  1. hero com vídeo do braço acendendo e o botão "Entrar na lista de espera";
+  2. 3 pilares: Braço + CAGED, Backing + improviso, e o Treino que se monta sozinho;
+  3. uma demonstração interativa curta;
+  4. depoimentos do beta;
+  5. preço (quando houver);
+  6. FAQ e um botão final.
+- **Técnica:** página estática em `site/` no Cloudflare Pages, separada do app, para carregar rápido e aparecer no Google.
+- **Lista de espera:** começa num formulário grátis (Tally). Depois do deploy (9), passa a usar `POST /api/lista-espera` com a entidade `ListaEspera` (Email, Idioma, CriadoEm), que o dev implementa.
+
 ### Futuro
-Player de tablatura estilo Songsterr com alphaTab, usando arquivos Guitar Pro que você tiver. Também: detecção de tempo pelo microfone e gravação de sessões. E, por ordem de valor ÷ esforço:
+Também: detecção de tempo pelo microfone. E, por ordem de valor ÷ esforço:
+- **Música + tab + trecho:** a faixa sem guitarra (20) e a tab dela (21) tocando juntas, com o Estudo de trecho por cima. É treinar a música que você gosta com a banda.
+- **Batidas de violão brasileiras:** padrões de mão direita (↓↑) de pop, sertanejo, MPB e bossa, tocando junto da backing. Diferencial forte no Brasil.
+- **Treino de ouvido:** reconhecer intervalos e acordes, reaproveitando o `theory/` e os samples do `smplr`.
+- **Gravar o take** por cima da backing ou da tab e comparar com o da semana anterior.
 - **"Envie a música, receba a aula":** detectar BPM, tom e acordes da música separada → progressão no montador, escala no braço e exercício de improviso em cima da música real.
 - **Solo no braço:** `usePitch` na faixa só guitarra, mostrando o solo no `<Fretboard>` em câmera lenta (monofônico).
 - **Modo canhoto, afinações alternativas e modo baixo** (4 cordas): pouco código, o `theory/` e o `<Fretboard>` já são genéricos.
-- **Plano para professores:** o professor monta treinos para os alunos e acompanha o progresso; paga por aluno.
+- **Plano para professores:** o professor monta treinos para os alunos e acompanha o progresso; paga por aluno. O guitarpracticehub.com tem área de professor, um sinal de que existe demanda.
 - **Indicação** (os dois ganham 1 mês Pro), plano anual, preço de estudante.
 - **Duelo de improviso:** dois amigos gravam 30 s sobre a base do desafio do dia e os outros votam.
 
 ## Produto: beta e assinatura
-**Fase A — beta fechado (≈ R$ 0/mês):** núcleo pronto (metrônomo, braço, backing, improviso, progresso) → 15 → 9 → convites para amigos músicos, todos Pro. Feedback pelo botão do app + grupo de WhatsApp. Mínimo de LGPD: termos de uso, política de privacidade, apagar conta sob pedido; no separador, o usuário é responsável pelo arquivo e tudo some em 7 dias. Opcional: PostHog (grátis) para ver o que é usado. Landing page com lista de espera.
+**Fase A — beta fechado (≈ R$ 0/mês):** núcleo pronto (metrônomo, braço, backing, improviso, progresso) → 15 → 9 → convites para amigos músicos, todos Pro. Feedback pelo botão do app + grupo de WhatsApp. Mínimo de LGPD: termos de uso, política de privacidade, apagar conta sob pedido; no separador, o usuário é responsável pelo arquivo e tudo some em 7 dias. Opcional: PostHog (grátis) para ver o que é usado. Landing page com lista de espera (módulo 23).
 
 **Fase B — assinatura (freemium):** o grátis tem que ser útil sozinho; o Pro destrava o que organiza e faz evoluir.
 

@@ -47,3 +47,22 @@ export function shape(tonica: Nota, escala: NomeEscala, posicao: number): string
     }
     return casas
 }
+
+// A faixa de casas em volta de um desenho: da casa mais baixa - 1 até a mais alta + 1
+export function janela(desenho: string[]): [number, number] {
+    //desenho = As chaves "corda-casa" de um acorde, como o voicing devolve: ['0-5', '1-5', '2-6', ...]. As funções não sabem que é um acorde, então servem para qualquer desenho
+    const casas = desenho.map((chave) => Number(chave.split('-')[1])) //	'2-6'.split('-') dá ['2', '6']. A posição [1] é a casa, ainda como texto. Number(...)
+    return [Math.max(0, Math.min(...casas) - 1), Math.max(...casas) + 1]
+}
+
+// As chaves das notas que caem dentro da janela de um desenho
+export function aoRedor(desenho: string[], notas: Nota[]): string[] {
+    const [de, ate] = janela(desenho)
+    const chaves: string[] = []
+    for (let corda = 0; corda < 6; corda++) {
+        for (let casa = de; casa <= ate; casa++) {
+            if (notas.includes(notaNaCasa(corda, casa))) chaves.push(`${corda}-${casa}`)
+        }
+    }
+    return chaves
+}

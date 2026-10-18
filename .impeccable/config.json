@@ -38,6 +38,42 @@
         ],
         "createdAt": "2026-10-10T01:25:23.277Z",
         "reason": "Claude: tablatura em monospace precisa das linhas coladas para as cordas alinharem"
+      },
+      {
+        "rule": "dark-glow",
+        "value": "*",
+        "files": [
+          "docs/mockups/backing.html"
+        ],
+        "createdAt": "2026-10-18T15:24:38.966Z",
+        "reason": "CLAUDE.md do projeto: item ativo marcado por 'luz piloto' âmbar com brilho; glow só nas luzes piloto/tempos"
+      },
+      {
+        "rule": "dark-glow",
+        "value": "*",
+        "files": [
+          "docs/mockups/landing.html"
+        ],
+        "createdAt": "2026-10-18T16:11:26.204Z",
+        "reason": "CLAUDE.md do projeto: luz piloto âmbar; brilho só nas luzes piloto, LEDs dos tempos e LEDs dos pedais"
+      },
+      {
+        "rule": "tight-leading",
+        "value": "*",
+        "files": [
+          "docs/mockups/landing.html"
+        ],
+        "createdAt": "2026-10-18T16:12:31.709Z",
+        "reason": "Claude: line-height 1.05 só nos títulos de display (.h); corpo usa 1.5"
+      },
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          "docs/mockups/landing.html"
+        ],
+        "createdAt": "2026-10-18T16:12:32.002Z",
+        "reason": "Claude: faixa de 4px no TOPO dos cards de pedal = cor de categoria do design system (CLAUDE.md: pedais por categoria), não borda lateral"
       }
     ]
   }

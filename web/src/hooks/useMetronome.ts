@@ -109,7 +109,7 @@ export function useMetronome() {
 
                 if (ehTempo) {
                     const atraso = (proximoClique - ctx.currentTime) * 1000
-                    timeouts.push(setTimeout(() => setTempoAtual(tempo), atraso))
+                    timeouts.push(window.setTimeout(() => setTempoAtual(tempo), atraso))
                 }
 
                 proximoClique += 60 / c.bpm / c.subdivisao

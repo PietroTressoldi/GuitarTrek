@@ -1,4 +1,4 @@
-import { AFINACAO_PADRAO, notaNaCasa } from '@/theory/braco'
+import { AFINACAO_PADRAO, janela, notaNaCasa } from '@/theory/braco'
 import { grau, type Nota } from '@/theory/notas'
 import { AnimatePresence, motion } from 'motion/react'
 
@@ -21,6 +21,19 @@ function xCasa(casa: number) {
     return casa === 0 ? X_PESTANA / 2 : X_PESTANA + (casa - 0.5) * LARGURA_CASA
 }
 
+// Onde começa a faixa de uma casa: na borda esquerda dela (a casa 0 começa no canto do braço)
+function xFaixa(casa: number) {
+    return casa === 0 ? 0 : X_PESTANA + (casa - 1) * LARGURA_CASA
+}
+
+// [cor do círculo, cor do texto]. Com um acorde na tela, só a tônica DO ACORDE fica cheia em âmbar.
+function cores(ehTonica: boolean, doAcorde: boolean, comAcorde: boolean): [string, string] {
+    if (ehTonica && (doAcorde || !comAcorde)) return ['fill-primary stroke-primary', 'fill-primary-foreground']
+    if (ehTonica) return ['fill-card stroke-primary', 'fill-primary']
+    if (doAcorde) return ['fill-foreground stroke-foreground', 'fill-background']
+    return ['fill-card stroke-cat-escalas', 'fill-foreground']
+}
+
 export type Exibicao = 'nota' | 'grau'
 
 type Props = {
@@ -29,14 +42,31 @@ type Props = {
     mostrar?: Exibicao
     alvos?: Nota[]
     destaque?: string[]
+    desenhos?: string[][]
 }
 
-export function Fretboard({ tonica, notas, mostrar = 'nota', alvos = [], destaque = [] }: Props) {
+export function Fretboard({ tonica, notas, mostrar = 'nota', alvos = [], destaque = [], desenhos = [] }: Props) {
+
+    const acorde = desenhos.flat()
+    const comAcorde = acorde.length > 0
+
+    // com várias formas ("Todas") as faixas se sobrepõem e viram listras: só desenha com uma
+    const faixa = desenhos.length === 1 ? janela(desenhos[0]) : null
 
     const casas = Array.from({ length: CASAS + 1 }, (_, i) => i) //Cria [0, 1, 2, ..., 15]. É o Enumerable.Range(0, 16) do C#. O _ é o nome convencional para "parâmetro que eu não uso".
 
     return (
         <svg viewBox={`0 0 ${LARGURA} ${ALTURA}`} className="w-full min-w-[640px]"> {/*Ocupa toda a largura, mas nunca menos de 640px. No celular, o braço não vira um risquinho: ele rola de lado.*/}
+            {faixa && (
+                <rect
+                    x={xFaixa(faixa[0])}
+                    y={Y_TOPO - 16}
+                    width={X_PESTANA + faixa[1] * LARGURA_CASA - xFaixa(faixa[0])}
+                    height={5 * ESPACO_CORDA + 32}
+                    rx={8}
+                    className="fill-primary opacity-10"
+                />
+            )}
             {casas.map((casa) => (
                 <line
                     key={casa}
@@ -69,28 +99,46 @@ export function Fretboard({ tonica, notas, mostrar = 'nota', alvos = [], destaqu
                     {casa}
                 </text>
             ))}
+            {desenhos.map((desenho, i) => (
+                <polyline
+                    key={i}
+                    points={desenho
+                        .map((chave) => {
+                            const [corda, casa] = chave.split('-').map(Number)
+                            return `${xCasa(casa)},${yCorda(corda)}`
+                        })
+                        .join(' ')}
+                    fill="none"
+                    strokeWidth={3}
+                    strokeLinejoin="round"
+                    className="stroke-foreground opacity-25"
+                />
+            ))}
             <AnimatePresence>
                 {AFINACAO_PADRAO.flatMap((_, corda) =>
                     casas.map((casa) => {
                         const nota = notaNaCasa(corda, casa)
-                        if (!notas.includes(nota)) return null
-                        const ehTonica = nota === tonica
                         const chave = `${corda}-${casa}`
+                        const doAcorde = acorde.includes(chave)
+                        if (!notas.includes(nota) && !doAcorde) return null
+                        const ehTonica = nota === tonica
                         const apagada = destaque.length > 0 && !destaque.includes(chave)
+                        const soEscala = comAcorde && !doAcorde
+                        const [corCirculo, corTexto] = cores(ehTonica, doAcorde, comAcorde)
                         return (
                             <motion.g
                                 key={chave}
                                 initial={{ scale: 0 }}
-                                animate={{ scale: 1, opacity: apagada ? 0.15 : 1 }}
+                                animate={{ scale: 1, opacity: apagada ? 0.1 : soEscala ? 0.6 : 1 }}
                                 exit={{ scale: 0 }}
                                 transition={{ duration: 0.2 }}
                             >
                                 <circle
                                     cx={xCasa(casa)}
                                     cy={yCorda(corda)}
-                                    r={11}
+                                    r={soEscala ? 9 : 11}
                                     strokeWidth={alvos.includes(nota) ? 4 : 2}
-                                    className={ehTonica ? 'fill-primary stroke-primary' : 'fill-card stroke-cat-escalas'}
+                                    className={corCirculo}
                                 />
                                 <text
                                     x={xCasa(casa)}
@@ -99,7 +147,7 @@ export function Fretboard({ tonica, notas, mostrar = 'nota', alvos = [], destaqu
                                     dominantBaseline="central"
                                     fontSize={10}
                                     fontWeight={600}
-                                    className={ehTonica ? 'fill-primary-foreground' : 'fill-foreground'}
+                                    className={corTexto}
                                 >
                                     {mostrar === 'grau' ? grau(tonica, nota) : nota}
                                 </text>

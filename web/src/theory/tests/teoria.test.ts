@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest'
-import { transpor, distancia } from './notas'
-import { notasDaEscala } from './escalas'
-import { ACORDES, FORMAS, notasDoAcorde, voicing, type Forma, type TipoAcorde } from './acordes'
-import { grau, NOTAS } from './notas'
-import { notaNaCasa } from './braco'
+import { transpor, distancia } from '../notas'
+import { notasDaEscala } from '../escalas'
+import { ACORDES, FORMAS, notasDoAcorde, voicing, type Forma, type TipoAcorde } from '../acordes'
+import { grau, NOTAS } from '../notas'
+import { notaNaCasa } from '../braco'
 
 describe('notas', () => {
     it('sobe um tom de C para D', () => {

@@ -9,7 +9,7 @@ export function PainelFlutuante() {
     const { metronomo: m, drone } = useAudio()
     const { pathname } = useLocation()
 
-    if (pathname === '/metronomo') return null
+    if (pathname === '/metronomo' || pathname === '/backing') return null
 
     return (
         <AnimatePresence>

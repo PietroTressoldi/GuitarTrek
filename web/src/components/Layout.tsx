@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useLocation } from 'react-router'
-import { CalendarDays, Guitar, Library, Metronome, TrendingUp, AudioWaveform, Music } from 'lucide-react'
+import { CalendarDays, Guitar, Library, Metronome, TrendingUp, AudioWaveform, Music, Drum } from 'lucide-react'
 import { APP_NAME } from '@/lib/config'
 import { motion } from 'motion/react'
 import { ProvedorDeAudio } from './ProvedorDeAudio'
@@ -13,6 +13,7 @@ const menu = [
     { para: '/progresso', rotulo: 'Progresso', icone: TrendingUp },
     { para: '/afinador', rotulo: 'Afinador', icone: AudioWaveform },
     { para: '/braco', rotulo: 'Braço', icone: Music },
+    { para: '/backing', rotulo: 'Backing Tracks', icone: Drum }
 ]
 
 export function Layout() {
