@@ -43,9 +43,11 @@ type Props = {
     alvos?: Nota[]
     destaque?: string[]
     desenhos?: string[][]
+    proximo?: string[]
+    chegada?: number
 }
 
-export function Fretboard({ tonica, notas, mostrar = 'nota', alvos = [], destaque = [], desenhos = [] }: Props) {
+export function Fretboard({ tonica, notas, mostrar = 'nota', alvos = [], destaque = [], desenhos = [], proximo = [], chegada = 0 }: Props) {
 
     const acorde = desenhos.flat()
     const comAcorde = acorde.length > 0
@@ -114,6 +116,23 @@ export function Fretboard({ tonica, notas, mostrar = 'nota', alvos = [], destaqu
                     className="stroke-foreground opacity-25"
                 />
             ))}
+            <motion.g key={proximo.join(' ')} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: chegada, ease: 'linear' }}>
+                {proximo.map((chave) => {
+                    const [corda, casa] = chave.split('-').map(Number)
+                    return (
+                        <circle
+                            key={chave}
+                            cx={xCasa(casa)}
+                            cy={yCorda(corda)}
+                            r={15}
+                            fill="none"
+                            strokeWidth={1.5}
+                            strokeDasharray="4 3"
+                            className="stroke-muted-foreground"
+                        />
+                    )
+                })}
+            </motion.g>
             <AnimatePresence>
                 {AFINACAO_PADRAO.flatMap((_, corda) =>
                     casas.map((casa) => {

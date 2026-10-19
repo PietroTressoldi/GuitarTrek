@@ -69,7 +69,7 @@ GuitarTrek/
 
 ## Trilha de tasks — por ordem de prioridade
 
-> **Ordem atual (out/2026): improviso puxado para frente.** Depois do 3, a sequência é **5 → 5.5 (18a, 18c) → 22 (multilíngua, enquanto ainda são poucas páginas) → 5.5 (18b, 18d) → 12 (afinador, que traz o microfone) → 17 (Laboratório de improviso)**, e então volta para 4, 6, 7… A numeração abaixo continua a mesma, para bater com as issues.
+> **Ordem atual (out/2026): improviso puxado para frente.** Depois do 3, a sequência é **5 → 5.5 (18a, 18c, 18b, 18d, 18f YouTube, 18e) → 22 (multilíngua; a aula 22a já está escrita, adiada pelo dev em out/2026 para seguir nas funcionalidades) → 12 (afinador, que traz o microfone) → 17 (Laboratório de improviso)**, e então volta para 4, 6, 7… A numeração abaixo continua a mesma, para bater com as issues.
 >
 > **Em paralelo, desde já:** Instagram, TikTok e Shorts mostrando o app na prática (módulo 23). Não precisa esperar o app ficar pronto.
 >
@@ -114,6 +114,16 @@ Uma base para treinar junto, como o drone, mas com **bateria, baixo e acordes**.
 - **Ao tocar:** o compasso atual fica aceso, o acorde aparece grande e a escala sugerida aparece no `<Fretboard>`. Tem um mixer com volume e mute por instrumento.
 - **Tela (mockup aprovado em `docs/mockups/backing.html`):** transporte num painel só, "Agora" com grau, luzes dos tempos e próximo acorde, grade com cifra + grau, e o braço com a escala em volta da forma CAGED do acorde atual (`aoRedor`, aula 05e), escolhendo a forma mais perto da região atual e mostrando a próxima troca tracejada. O painel flutuante do metrônomo some nesta página.
 - **Som:** samples via `smplr` (bateria, baixo, piano/órgão), que aceita o horário exato de cada nota no relógio do áudio.
+- **18b — Timbres reais:** cada canal (bateria, baixo, teclado) com opções gravadas de instrumento de verdade: bateria acústica Pearl (GMRockKit do Hydrogen, **GPL**: trocar por banco CC0/CC-BY antes de vender) ou LM-2; baixo elétrico dedo/palheta/fretless ou contrabaixo (Smolken); piano de cauda (Splendid Grand), Wurlitzer ou órgão. Cada estilo sugere os seus timbres, com humanização (tempo e força) e reverb.
+- **Sem guitarra sintetizada (decisão de out/2026):** o dev testou uma guitarra base montada nota a nota com palhetada simulada e ficou artificial demais. Backing de guitarrista é sem guitarra: a guitarra é o usuário.
+- **18e — Guitarra gravada ("RealTracks caseiro"):** o dev grava trechos de 1 compasso de guitarra base por estilo × tipo de acorde (maior, menor, 7, m7, 7M), em dois tons (um em Mi e outro em Lá, para mudar a altura pouco). O app escolhe o trecho do acorde da vez, muda a altura para o tom e estica para o BPM com a `signalsmith-stretch` (MIT, WASM). É o que o Band-in-a-Box faz com os RealTracks. Direitos do próprio dev, o que vira diferencial do produto. Começar com 2 estilos (rock e pop).
+- **Faixas completas gravadas:** não há biblioteca gratuita que possa ser embutida no app (os loops "royalty free" proíbem redistribuir). O caminho é o usuário trazer a faixa dele: loop do YouTube (18f, depois o 11) e separador de faixas (20).
+- **18f — Backing do YouTube:** na página Backing, uma aba **Gerada | YouTube**.
+  - Salvar links com título, tom, escala, BPM e progressão (uma pronta ou uma montada no 18d). Back (o dev implementa): entidade `FaixaYoutube` (UserId, Url, Titulo, Tom, Escala, Bpm, Progressao em jsonb, InicioSeg) com CRUD.
+  - Player pela **IFrame Player API** oficial: loop A–B e velocidade de 0,25× a 2×. É permitido pelos termos do YouTube (o vídeo toca pelo próprio YouTube, nada é baixado).
+  - **Acordes sincronizados:** o usuário dá o play e aperta "1" no primeiro tempo; o app lê o `getCurrentTime()` e calcula o compasso por `(tempo − início) ÷ duração do compasso`. O braço segue os acordes com as cores dos papéis e os tracejados, como na backing gerada. Funciona porque backing track é gravada no metrônomo; em gravação ao vivo, o tempo escorrega.
+  - **Limites:** o app não muda o tom nem ouve o áudio do YouTube, porque o navegador proíbe um site de mexer num iframe de outro site. Vídeos com incorporação bloqueada não tocam. Para mudar o tom, a faixa precisa ser um arquivo (20).
+  - O player, o loop e a velocidade viram um componente reaproveitado no repertório (11) e no Estudo de trecho (21).
 - Os blocos de improviso do montador de treino (módulo 7) podem apontar para uma backing track.
 
 *Você aprende:* dados como "partitura", sequenciador, mais Web Audio, grade interativa e CRUD reaproveitado.
@@ -178,7 +188,7 @@ Deploy com HTTPS, custo zero no beta: front no **Cloudflare Pages**; API + Postg
 
 ### 11. Repertório + loop do YouTube + sugestões
 - Lista de músicas com status e BPM.
-- Player do YouTube com loop A-B e velocidade de 50–100%, com as seções salvas.
+- Player do YouTube com loop A-B e velocidade de 50–100%, com as seções salvas. O player é o mesmo da 18f (backing do YouTube).
 - Seed com cerca de 50 músicas conhecidas (só metadados), sugeridas conforme os objetivos e técnicas do seu plano.
 - Músicas também podem entrar no plano.
 
@@ -220,6 +230,8 @@ Você envia uma música (**só upload de arquivo**: link do YouTube viola os ter
 - **Back (o dev implementa, roteiro curto):** `StemJob` (UserId, arquivo, status, expira em 7 dias, caminhos das faixas); `POST/GET /api/stems`, stream das faixas; `BackgroundService` que apaga os vencidos. Upload até ~20 MB, mp3/wav/m4a.
 - **Worker Python (Claude):** container com Demucs que pega o próximo job no Postgres. `MODO=cpu` no beta (na VM Oracle, 3–10 min por música) e `MODO=modal` para vender (GPU por uso, ~US$ 0,01–0,05 por música). Arquivos no Cloudflare R2 quando sair da VM.
 - **Front (aula):** upload com progresso, status por polling, player multi-faixa com mute/solo, loop A-B e velocidade. A faixa vira base para o Laboratório de improviso.
+- **Mudar o tom:** como aqui o app tem o áudio de verdade, dá para transpor e mudar o andamento sem mudar a altura, com a `signalsmith-stretch` (MIT, WASM, a mesma da 18e). Soa melhor em mudanças pequenas (±3 semitons, 0,75× a 1,5×).
+- **Detectar acordes, tom e BPM (como o Moises):** o worker Python analisa a música e devolve uma linha do tempo de acordes, que vira a progressão da faixa. Com isso o braço segue os acordes da música real, como na 18f. É uma **estimativa**: acerta bem em pop e rock com acordes simples e erra mais em jazz. Antes de escolher a biblioteca, conferir a licença: os modelos do `madmom` são CC BY-NC-SA (uso não comercial) e o Essentia é AGPL. O usuário pode corrigir os acordes errados no montador (18d).
 - Grátis: 2 músicas/mês. Pro: ilimitado.
 
 *Você aprende:* upload de arquivo, fila de jobs, polling, player multi-faixa sincronizado.
@@ -253,7 +265,7 @@ Para treinar **as músicas de que você gosta**: a tab tocando, o trecho difíci
 
 ### 22. Multilíngua 🌎 (PT-BR, EN, ES)
 Para alcançar além do Brasil: inglês é o maior público, e espanhol cobre a América Latina, com fuso e realidade de preço parecidos com os do Brasil. **Entra logo depois da 18c**, enquanto ainda são poucas páginas; daí em diante, toda tela nova já nasce traduzível.
-- **Dicionário tipado** em `web/src/i18n/`: `Record<Idioma, Textos>` com um `t('chave')` via Context. É o mesmo `Record` + `satisfies` dos rótulos, sem biblioteca nova: se faltar uma tradução, o TypeScript avisa. Se o volume de texto crescer muito, avaliar o `react-i18next`.
+- **Dicionário tipado** em `web/src/i18n/`: o `pt.ts` é a referência (`type Textos = typeof pt`), `en.ts`/`es.ts` são `Textos`, e as telas leem `t.secao.chave` via Context (`useTextos()`). Aulas 22a (estrutura, menu, teoria, Backing) e 22b (Metrônomo, painel, resto do Braço, `Dó Ré Mi`). É o mesmo `Record` + `satisfies` dos rótulos, sem biblioteca nova: se faltar uma tradução, o TypeScript avisa. Se o volume de texto crescer muito, avaliar o `react-i18next`.
 - **Cuidados de música:**
   - Nome das notas configurável entre `C D E` e `Dó Ré Mi` (no espanhol, `Do Re Mi` é o comum).
   - Os `ROTULOS_ESCALA` e `ROTULOS_ACORDE` passam a vir do dicionário.
@@ -292,7 +304,8 @@ Também: detecção de tempo pelo microfone. E, por ordem de valor ÷ esforço:
 - **Batidas de violão brasileiras:** padrões de mão direita (↓↑) de pop, sertanejo, MPB e bossa, tocando junto da backing. Diferencial forte no Brasil.
 - **Treino de ouvido:** reconhecer intervalos e acordes, reaproveitando o `theory/` e os samples do `smplr`.
 - **Gravar o take** por cima da backing ou da tab e comparar com o da semana anterior.
-- **"Envie a música, receba a aula":** detectar BPM, tom e acordes da música separada → progressão no montador, escala no braço e exercício de improviso em cima da música real.
+- **"Envie a música, receba a aula":** com os acordes, o tom e o BPM detectados no 20 → progressão no montador, escala no braço e exercício de improviso em cima da música real.
+- **Extensão do navegador (como a Transpose):** uma extensão roda dentro da página do youtube.com e pode passar o `<video>` pela Web Audio, para mudar o tom e ouvir o áudio direto no YouTube. É outro produto (só desktop, loja do Chrome, código separado), então fica para depois de o app estar no ar.
 - **Solo no braço:** `usePitch` na faixa só guitarra, mostrando o solo no `<Fretboard>` em câmera lenta (monofônico).
 - **Modo canhoto, afinações alternativas e modo baixo** (4 cordas): pouco código, o `theory/` e o `<Fretboard>` já são genéricos.
 - **Plano para professores:** o professor monta treinos para os alunos e acompanha o progresso; paga por aluno. O guitarpracticehub.com tem área de professor, um sinal de que existe demanda.

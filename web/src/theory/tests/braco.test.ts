@@ -2,6 +2,7 @@ import { expect, describe, it } from "vitest";
 import { aoRedor, notaNaCasa, shape } from "../braco";
 import { notasDaEscala } from "../escalas";
 import { voicing } from "../acordes";
+import { formaPerto } from "../progressoes";
 
 describe('braço', () => {
     it('casa 5 da 6ª corda é Lá', () => {
@@ -42,5 +43,18 @@ describe('escala ao redor do acorde', () => {
     })
     it('não passa da pestana', () => {
         expect(aoRedor(['0-0'], ['D#'])).toEqual(['3-1'])
+    })
+    
+})
+describe('forma mais perto', () => {
+    it('no blues em Lá, perto do A7 da casa 5 o D7 é a forma de A', () => {
+        expect(formaPerto('D', 'dom7', voicing('A', 'dom7', 'E'))).toEqual(voicing('D', 'dom7', 'A'))
+    })
+    it('e o E7 é a forma de C', () => {
+        expect(formaPerto('E', 'dom7', voicing('A', 'dom7', 'E'))).toEqual(voicing('E', 'dom7', 'C'))
+    })
+    it('o próprio acorde fica onde está', () => {
+        const a7 = voicing('A', 'dom7', 'E')
+        expect(formaPerto('A', 'dom7', a7)).toEqual(a7)
     })
 })

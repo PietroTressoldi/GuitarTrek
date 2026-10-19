@@ -1,5 +1,7 @@
 import { transpor, type Nota } from './notas'
-import type { TipoAcorde } from './acordes'
+import { FORMAS, voicing, type Forma, type TipoAcorde } from './acordes'
+import type { NomeEscala } from './escalas';
+import { janela } from './braco';
 
 export type Acorde = { raiz: Nota; tipo: TipoAcorde }
 
@@ -22,13 +24,26 @@ export function acordeDoGrau(tom: Nota, grau: string): Acorde {
 }
 
 export const PROGRESSOES = {
-    blues12: { nome: 'Blues de 12', compassos: ['I7', 'IV7', 'I7', 'I7', 'IV7', 'IV7', 'I7', 'I7', 'V7', 'IV7', 'I7', 'V7'] },
-    pop: { nome: 'I–V–vi–IV', compassos: ['I', 'V', 'vi', 'IV'] },
-    anos50: { nome: 'I–vi–IV–V', compassos: ['I', 'vi', 'IV', 'V'] },
-    doisCincoUm: { nome: 'ii–V–I', compassos: ['ii7', 'V7', 'I7M', 'I7M'] },
-    andaluza: { nome: 'Andaluza', compassos: ['i', 'bVII', 'bVI', 'V'] },
-    modal: { nome: 'Vamp dórico', compassos: ['i7', 'IV7'] },
-    bluesMenor: { nome: 'Blues menor', compassos: ['i7', 'iv7', 'i7', 'i7', 'iv7', 'iv7', 'i7', 'i7', 'bVI7', 'V7', 'i7', 'V7'] },
-} satisfies Record<string, { nome: string; compassos: string[] }>
+    blues12: { nome: 'Blues de 12', escala: 'blues', compassos: ['I7', 'IV7', 'I7', 'I7', 'IV7', 'IV7', 'I7', 'I7', 'V7', 'IV7', 'I7', 'V7'] },
+    pop: { nome: 'I–V–vi–IV', escala: 'pentaMaior', compassos: ['I', 'V', 'vi', 'IV'] },
+    anos50: { nome: 'I–vi–IV–V', escala: 'pentaMaior', compassos: ['I', 'vi', 'IV', 'V'] },
+    doisCincoUm: { nome: 'ii–V–I', escala: 'maior', compassos: ['ii7', 'V7', 'I7M', 'I7M'] },
+    andaluza: { nome: 'Andaluza', escala: 'menor', compassos: ['i', 'bVII', 'bVI', 'V'] },
+    modal: { nome: 'Vamp dórico', escala: 'dorico', compassos: ['i7', 'IV7'] },
+    bluesMenor: { nome: 'Blues menor', escala: 'pentaMenor', compassos: ['i7', 'iv7', 'i7', 'i7', 'iv7', 'iv7', 'i7', 'i7', 'bVI7', 'V7', 'i7', 'V7'] },
+} satisfies Record<string, { nome: string; escala: NomeEscala; compassos: string[] }>
 
 export type NomeProgressao = keyof typeof PROGRESSOES
+
+// O meio da janela de um desenho: a casa "em volta" da qual ele fica
+function centro(desenho: string[]) {
+    const [de, ate] = janela(desenho)
+    return (de + ate) / 2
+}
+
+// Das 5 formas do acorde, a que fica mais perto de outro desenho
+export function formaPerto(raiz: Nota, tipo: TipoAcorde, perto: string[]): string[] {
+    const alvo = centro(perto)
+    const desenhos = (Object.keys(FORMAS) as Forma[]).map((f) => voicing(raiz, tipo, f))
+    return desenhos.sort((a, b) => Math.abs(centro(a) - alvo) - Math.abs(centro(b) - alvo))[0]
+}

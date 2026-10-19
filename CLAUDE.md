@@ -18,7 +18,6 @@ Projeto de estudo + produto: central de treino para guitarristas. Plano em `docs
 - Direção visual escolhida: **H (amp + pedais + treino)**, ver `docs/mockups/index.html`. Fonte: Archivo (variável). Títulos em largura expandida (`font-stretch: 125%`, peso semibold), estilo gravação de painel de amp; item ativo marcado por "luz piloto" âmbar, não por fundo âmbar cheio. Visual sóbrio/premium, nada de pôster.
 - Cores **só** via tokens de `web/src/index.css` (`bg-primary`, `bg-card`, `text-muted-foreground`, `bg-cat-*`...). Nunca cor fixa (`bg-amber-400`, `#hex`) em componente: o tema é trocável via `<html data-theme="amp|treino">`.
 - Categorias de exercício têm cor de "pedal": aquecimento, tecnica, escalas, ritmo, teoria.
-
 ## Ambiente
 - API: `dotnet run --project api/GuitarTrek.Api --launch-profile http` → http://localhost:5280 (a 5146 é do NTKDaemon da Native Instruments).
 - Banco: `docker compose up -d` → Postgres na porta 5433 (a 5432 é um Postgres nativo do Windows).

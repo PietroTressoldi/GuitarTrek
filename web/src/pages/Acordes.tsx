@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { Fretboard, type Exibicao } from '@/components/Fretboard'
 import { grau, NOTAS, type Nota } from '@/theory/notas'
 import { cifra, FORMAS, notasDoAcorde, ROTULOS_ACORDE, voicing, type Forma, type TipoAcorde } from '@/theory/acordes'

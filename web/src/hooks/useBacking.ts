@@ -16,6 +16,7 @@ export function useBacking() {
     const [estilo, setEstilo] = useState<NomeEstilo>('rock')
     const [progressao, setProgressao] = useState<NomeProgressao>('blues12')
     const [compassoAtual, setCompassoAtual] = useState(-1)
+    const [tempoAtual, setTempoAtual] = useState(-1)
 
     const audio = useRef<AudioContext | null>(null)
     const bateria = useRef<DrumMachine | null>(null)
@@ -23,12 +24,15 @@ export function useBacking() {
     useEffect(() => {
         const ctx = new AudioContext()
         audio.current = ctx
+        let cancelado = false
         const drums = DrumMachine(ctx, { instrument: 'LM-2' })
         drums.ready.then(() => {
+            if (cancelado) return
             bateria.current = drums
             setCarregado(true)
         })
         return () => {
+            cancelado = true
             ctx.close()
         }
     }, [])
@@ -52,10 +56,16 @@ export function useBacking() {
             while (proximoPasso < ctx.currentTime + JANELA_S) {
                 const c = config.current
 
-                if (passo === 0) {
-                    const esteCompasso = compasso //Uma cópia do número, presa à função do setTimeout. Sem ela, a função leria compasso quando rodasse, lá no futuro, e ele já teria mudado. É a mesma armadilha do C# com lambda dentro de for capturando a variável do loop.
+                if (passo % 4 === 0) {
+                    const esteCompasso = compasso
+                    const esteTempo = passo / 4
                     const atraso = (proximoPasso - ctx.currentTime) * 1000
-                    timeouts.push(window.setTimeout(() => setCompassoAtual(esteCompasso), atraso))
+                    timeouts.push(
+                        window.setTimeout(() => {
+                            setCompassoAtual(esteCompasso)
+                            setTempoAtual(esteTempo)
+                        }, atraso),
+                    )
                 }
 
                 for (const [peca, padrao] of Object.entries(ESTILOS[c.estilo].bateria)) { //Lista de pares [chave, valor]: ['kick', 'X.......X.X.....'], ['snare', ...]. É o foreach (var (peca, padrao) in dicionario) do C#.
@@ -75,8 +85,9 @@ export function useBacking() {
             clearInterval(agendador)
             timeouts.forEach(clearTimeout)
             setCompassoAtual(-1)
+            setTempoAtual(-1)
         }
     }, [tocando])
 
-    return { tocando, setTocando, carregado, bpm, setBpm, tom, setTom, estilo, setEstilo, progressao, setProgressao, compassoAtual }
+    return { tocando, setTocando, carregado, bpm, setBpm, tom, setTom, estilo, setEstilo, progressao, setProgressao, compassoAtual, tempoAtual }
 }
