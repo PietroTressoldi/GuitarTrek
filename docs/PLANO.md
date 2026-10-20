@@ -69,7 +69,7 @@ GuitarTrek/
 
 ## Trilha de tasks — por ordem de prioridade
 
-> **Ordem atual (out/2026): improviso puxado para frente.** Depois do 3, a sequência é **5 → 5.5 (18a, 18c, 18b, 18d, 18f YouTube, 18e) → 22 (multilíngua; a aula 22a já está escrita, adiada pelo dev em out/2026 para seguir nas funcionalidades) → 12 (afinador, que traz o microfone) → 17 (Laboratório de improviso)**, e então volta para 4, 6, 7… A numeração abaixo continua a mesma, para bater com as issues.
+> **Ordem atual (out/2026): improviso puxado para frente.** Depois do 3, a sequência é **5 → 5.5 (18a, 18c, 18b, 18g, 18d, 18f YouTube, 18e) → 22 (multilíngua; a aula 22a já está escrita, adiada pelo dev em out/2026 para seguir nas funcionalidades) → 12 (afinador, que traz o microfone) → 17 (Laboratório de improviso)**, e então volta para 4, 6, 7… A numeração abaixo continua a mesma, para bater com as issues.
 >
 > **Em paralelo, desde já:** Instagram, TikTok e Shorts mostrando o app na prática (módulo 23). Não precisa esperar o app ficar pronto.
 >
@@ -115,6 +115,13 @@ Uma base para treinar junto, como o drone, mas com **bateria, baixo e acordes**.
 - **Tela (mockup aprovado em `docs/mockups/backing.html`):** transporte num painel só, "Agora" com grau, luzes dos tempos e próximo acorde, grade com cifra + grau, e o braço com a escala em volta da forma CAGED do acorde atual (`aoRedor`, aula 05e), escolhendo a forma mais perto da região atual e mostrando a próxima troca tracejada. O painel flutuante do metrônomo some nesta página.
 - **Som:** samples via `smplr` (bateria, baixo, piano/órgão), que aceita o horário exato de cada nota no relógio do áudio.
 - **18b — Timbres reais:** cada canal (bateria, baixo, teclado) com opções gravadas de instrumento de verdade: bateria acústica Pearl (GMRockKit do Hydrogen, **GPL**: trocar por banco CC0/CC-BY antes de vender) ou LM-2; baixo elétrico dedo/palheta/fretless ou contrabaixo (Smolken); piano de cauda (Splendid Grand), Wurlitzer ou órgão. Cada estilo sugere os seus timbres, com humanização (tempo e força) e reverb.
+- **18g — Backing que soa como banda (pedido do dev em out/2026, depois da 18b):** a base da 18b ficou simples e artificial demais: um compasso repetido, acordes em bloco sempre na mesma posição e humanização no sorteio. Entra **antes da 18d**: sem isso, o montador só salva uma base que soa mal.
+  - **Bateria tocada por gente:** grooves e viradas do **Groove MIDI Dataset** (Magenta/Google, **CC BY 4.0**, permite uso comercial com crédito). São bateristas reais gravados em MIDI, com o tempo e a força de cada batida. Converter para JSON, de 2 a 4 compassos por estilo, com variações. Substitui o `Math.random()` pelo "balanço" de verdade.
+  - **Baixo que caminha:** nota de aproximação (cromática ou da escala) no tempo 4, indo para a raiz do próximo acorde; variações por compasso; notas fantasma no funk; walking bass no jazz/blues.
+  - **Teclado com condução de vozes:** cada acorde na inversão mais perto do anterior, em vez de sempre empilhado da raiz; a nota de cima mais forte; tensões (9, 13) por estilo; pedal de sustain no piano; várias figuras de levada por estilo.
+  - **Dinâmica e forma:** intro e final, verso mais baixo que o refrão, crescendo na virada para o refrão, e cada instrumento com o seu "pocket" fixo (o baixo um pouco atrás do tempo), em vez de ruído aleatório.
+  - **Mixagem:** um `DynamicsCompressorNode` (nativo do Web Audio) no master e EQ simples por canal.
+  - **Critério de pronto:** comparar de ouvido, lado a lado, com uma backing de YouTube do mesmo estilo.
 - **Sem guitarra sintetizada (decisão de out/2026):** o dev testou uma guitarra base montada nota a nota com palhetada simulada e ficou artificial demais. Backing de guitarrista é sem guitarra: a guitarra é o usuário.
 - **18e — Guitarra gravada ("RealTracks caseiro"):** o dev grava trechos de 1 compasso de guitarra base por estilo × tipo de acorde (maior, menor, 7, m7, 7M), em dois tons (um em Mi e outro em Lá, para mudar a altura pouco). O app escolhe o trecho do acorde da vez, muda a altura para o tom e estica para o BPM com a `signalsmith-stretch` (MIT, WASM). É o que o Band-in-a-Box faz com os RealTracks. Direitos do próprio dev, o que vira diferencial do produto. Começar com 2 estilos (rock e pop).
 - **Faixas completas gravadas:** não há biblioteca gratuita que possa ser embutida no app (os loops "royalty free" proíbem redistribuir). O caminho é o usuário trazer a faixa dele: loop do YouTube (18f, depois o 11) e separador de faixas (20).
