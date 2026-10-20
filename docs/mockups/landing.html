@@ -1,0 +1,814 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GuitarTrek — Improvise com o braço inteiro na cabeça</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap" rel="stylesheet">
+<style>
+  /* Tokens copiados do tema "amp" de web/src/index.css */
+  :root {
+    --background: #141110; --foreground: #f1e8dc; --card: #2d231f; --primary: #f2a541; --primary-foreground: #2b1a05;
+    --secondary: #3a2e28; --muted-foreground: #a89a8a; --accent: #3d312b; --border: #3d312b; --sombra: rgb(0 0 0 / .55);
+    --cat-aquecimento: #5cc8a8; --cat-tecnica: #f07a3a; --cat-escalas: #f2c94c; --cat-ritmo: #e85d9e; --cat-teoria: #4c7df0;
+    --cat-foreground: #23211d; --success: #7bd88f; --destructive: #e5383b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--background); color: var(--foreground); font-family: "Archivo", system-ui, sans-serif; font-size: 16px; line-height: 1.5;
+         background-image: repeating-linear-gradient(45deg, rgb(255 255 255 / .012) 0 2px, transparent 2px 6px); }
+  a { color: inherit; text-decoration: none; }
+  .h { font-stretch: 125%; font-weight: 600; letter-spacing: -.015em; line-height: 1.05; }
+  .rot { font-size: 12px; color: var(--muted-foreground); font-stretch: 112%; letter-spacing: .08em; text-transform: uppercase; }
+  .muted { color: var(--muted-foreground); }
+  .pilot { width: 6px; height: 6px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 8px var(--primary); display: inline-block; flex-shrink: 0; }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+  section { padding: 112px 0; }
+  .sec-titulo { font-size: clamp(32px, 4.4vw, 52px); max-width: 760px; }
+  .sec-sub { margin-top: 16px; max-width: 620px; font-size: 18px; color: var(--muted-foreground); }
+
+  /* Botões */
+  .btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 22px; border-radius: 10px; font-weight: 600; font-size: 15px; border: 0; cursor: pointer; font-family: inherit; }
+  .btn-pri { background: var(--primary); color: var(--primary-foreground); box-shadow: inset 0 -3px 0 rgb(0 0 0 / .2); }
+  .btn-pri:hover { filter: brightness(1.08); }
+  .btn-sec { background: transparent; color: var(--foreground); border: 1px solid var(--border); }
+  .btn-sec:hover { background: var(--card); }
+
+  /* Nav */
+  nav { position: sticky; top: 0; z-index: 10; background: rgb(20 17 16 / .85); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); }
+  nav .wrap { display: flex; align-items: center; gap: 32px; height: 68px; }
+  .logo { font-size: 19px; display: flex; align-items: center; gap: 10px; }
+  .links { display: flex; gap: 28px; font-size: 14px; color: var(--muted-foreground); }
+  .links a:hover { color: var(--foreground); }
+  .idiomas { margin-left: auto; display: flex; gap: 2px; padding: 3px; border: 1px solid var(--border); border-radius: 7px; font-size: 12px; }
+  .idiomas span { padding: 4px 8px; border-radius: 4px; color: var(--muted-foreground); cursor: pointer; }
+  .idiomas span.on { background: var(--secondary); color: var(--foreground); }
+  nav .btn { padding: 9px 16px; font-size: 14px; }
+
+  /* Hero */
+  .hero { padding: 88px 0 96px; }
+  .hero .wrap { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 64px; align-items: center; }
+  .selo { display: inline-flex; align-items: center; gap: 10px; padding: 6px 12px; border: 1px solid var(--border); border-radius: 999px; font-size: 13px; color: var(--muted-foreground); }
+  .hero h1 { font-size: clamp(38px, 4.4vw, 60px); margin-top: 24px; }
+  .hero h1 em { font-style: normal; color: var(--primary); }
+  .hero p.sub { margin-top: 24px; font-size: 19px; color: var(--muted-foreground); max-width: 520px; }
+  .espera { margin-top: 36px; display: flex; gap: 8px; max-width: 480px; }
+  .espera input { flex: 1; min-width: 0; padding: 14px 16px; border-radius: 10px; border: 1px solid var(--border); background: var(--card); color: var(--foreground); font: inherit; font-size: 15px; }
+  .espera input::placeholder { color: var(--muted-foreground); }
+  .espera input:focus { outline: 2px solid var(--primary); outline-offset: 1px; }
+  .nota-espera { margin-top: 12px; font-size: 13px; color: var(--muted-foreground); }
+
+  /* Painel do hero: a "tela" do app */
+  .painel { border: 1px solid var(--border); border-radius: 16px; background: linear-gradient(var(--card), #241b18); box-shadow: 0 30px 60px -24px var(--sombra), inset 0 1px 0 rgb(255 255 255 / .04); overflow: hidden; }
+  .painel-topo { display: flex; align-items: center; gap: 20px; padding: 18px 22px; border-bottom: 1px solid var(--border); }
+  .painel-topo .acorde { font-size: 44px; min-width: 112px; }
+  .painel-topo .grau { color: var(--primary); font-size: 15px; margin-top: 4px; }
+  .tempos { display: flex; gap: 8px; margin-left: auto; }
+  .tempos i { width: 12px; height: 12px; border-radius: 50%; background: var(--secondary); border: 2px solid #120d0b; }
+  .tempos i.on { background: var(--primary); box-shadow: 0 0 10px var(--primary); }
+  .tempos i.um.on { background: var(--foreground); box-shadow: 0 0 10px var(--foreground); }
+  .compassos { display: grid; grid-template-columns: repeat(12, 1fr); gap: 3px; padding: 14px 22px 0; }
+  .compassos span { height: 22px; border-radius: 4px; background: var(--secondary); font-size: 11px; display: grid; place-items: center; color: var(--muted-foreground); font-stretch: 112%; }
+  .compassos span.on { background: var(--primary); color: var(--primary-foreground); font-weight: 700; }
+  .painel svg { display: block; width: 100%; height: auto; padding: 8px 10px 4px; }
+  .painel-rodape { display: flex; gap: 18px; flex-wrap: wrap; padding: 4px 22px 18px; font-size: 12px; color: var(--muted-foreground); }
+  .painel-rodape span { display: flex; align-items: center; gap: 7px; }
+  .painel-rodape i { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+
+  /* Faixa de confiança */
+  .faixa { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 28px 0; }
+  .faixa .wrap { display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+  .faixa div b { display: block; font-size: 28px; }
+  .faixa div span { font-size: 14px; color: var(--muted-foreground); }
+
+  /* Pilares em forma de pedal */
+  .pedais { margin-top: 56px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .pedal { position: relative; border-radius: 16px; background: var(--card); border: 1px solid var(--border); padding: 28px 26px 30px; display: flex; flex-direction: column; gap: 14px; overflow: hidden; }
+  .pedal::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 4px; background: var(--cor); }
+  .pedal .knobs { display: flex; gap: 10px; }
+  .pedal .knobs i { width: 26px; height: 26px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #4a403a, #120d0b 72%); border: 1.5px solid #5a4d44; position: relative; }
+  .pedal .knobs i::after { content: ""; position: absolute; left: 50%; top: 3px; width: 2px; height: 8px; margin-left: -1px; background: var(--cor); border-radius: 1px; transform-origin: 50% 10px; transform: rotate(var(--r, 0deg)); }
+  .pedal .led { position: absolute; top: 28px; right: 26px; width: 9px; height: 9px; border-radius: 50%; background: var(--cor); box-shadow: 0 0 10px var(--cor); }
+  .pedal h3 { font-size: 22px; margin-top: 10px; }
+  .pedal p { color: var(--muted-foreground); font-size: 15px; }
+  .pedal ul { list-style: none; display: flex; flex-direction: column; gap: 8px; font-size: 14px; margin-top: 4px; }
+  .pedal li { display: flex; gap: 10px; align-items: baseline; }
+  .pedal li::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--cor); flex-shrink: 0; transform: translateY(-2px); }
+
+  /* Vitrine: pedaços das outras telas */
+  .vitrine { margin-top: 56px; display: grid; grid-template-columns: repeat(6, 1fr); grid-auto-rows: minmax(250px, auto); gap: 20px; }
+  .tela { border: 1px solid var(--border); border-radius: 16px; background: var(--card); padding: 22px; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  .tela-cab { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+  .tela-cab b { font-size: 18px; }
+  .t-hoje { grid-column: 1 / 4; grid-row: 1 / 3; }
+  .t-metro { grid-column: 4 / 7; }
+  .t-afina { grid-column: 4 / 7; }
+  .t-agenda { grid-column: 1 / 4; }
+  .t-prog { grid-column: 4 / 7; }
+  /* Treino de hoje */
+  .meta { display: flex; align-items: center; gap: 18px; padding: 16px; border-radius: 12px; background: var(--background); }
+  .meta svg { width: 72px; height: 72px; flex-shrink: 0; }
+  .meta small { display: block; font-size: 13px; color: var(--muted-foreground); margin-top: 2px; }
+  .dias { display: flex; gap: 6px; margin-top: 10px; }
+  .dias i { width: 22px; height: 6px; border-radius: 3px; background: var(--secondary); }
+  .dias i.ok { background: var(--success); }
+  .dias i.hoje { background: var(--primary); }
+  .blocos { display: flex; flex-direction: column; gap: 8px; }
+  .bloco-t { display: grid; grid-template-columns: 34px 1fr auto; gap: 14px; align-items: center; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--background); }
+  .bloco-t .ped { width: 34px; height: 34px; border-radius: 8px; background: var(--c); position: relative; }
+  .bloco-t .ped::after { content: ""; position: absolute; left: 50%; bottom: 6px; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; background: rgb(0 0 0 / .35); }
+  .bloco-t b { display: block; font-size: 15px; }
+  .bloco-t small { font-size: 13px; color: var(--muted-foreground); }
+  .bloco-t .bpm { text-align: right; font-size: 20px; line-height: 1.1; }
+  .bloco-t .bpm span { display: block; font-size: 11px; font-stretch: 100%; font-weight: 500; color: var(--muted-foreground); }
+  .bloco-t .bpm span.rec { color: var(--success); }
+  .bloco-t.feito { opacity: .72; }
+  .t-hoje .btn { justify-content: center; margin-top: auto; }
+  /* Metrônomo */
+  .metro { display: flex; align-items: center; gap: 24px; flex: 1; }
+  .metro svg { width: 150px; height: 150px; flex-shrink: 0; }
+  .pulso { transform-origin: 75px 75px; animation: pulso .667s ease-out infinite; }
+  @keyframes pulso { from { opacity: .9; transform: scale(1); } to { opacity: 0; transform: scale(1.18); } }
+  .subs { display: flex; gap: 8px; }
+  .subs span { width: 40px; height: 46px; border-radius: 8px; background: var(--background); border: 1px solid var(--border); display: grid; place-items: center; font-size: 18px; color: var(--muted-foreground); position: relative; }
+  .subs span::before { content: ""; position: absolute; top: 6px; width: 5px; height: 5px; border-radius: 50%; background: var(--c); opacity: .5; }
+  .subs span.sel { border-color: var(--c); color: var(--foreground); }
+  .subs span.sel::before { opacity: 1; box-shadow: 0 0 6px var(--c); }
+  .trainer { margin-top: 14px; font-size: 13px; color: var(--muted-foreground); }
+  .trainer b { color: var(--foreground); }
+  .barra { margin-top: 8px; height: 6px; border-radius: 3px; background: var(--background); overflow: hidden; }
+  .barra i { display: block; height: 100%; width: 40%; background: var(--primary); border-radius: 3px; }
+  /* Afinador */
+  .afina { display: flex; align-items: center; gap: 24px; flex: 1; }
+  .afina svg { width: 200px; height: auto; flex-shrink: 0; }
+  .cordas { display: flex; gap: 6px; margin-top: 12px; }
+  .cordas span { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border); display: grid; place-items: center; font-size: 13px; color: var(--muted-foreground); }
+  .cordas span.ok { border-color: var(--success); color: var(--success); }
+  .cordas span.on { background: var(--primary); border-color: var(--primary); color: var(--primary-foreground); font-weight: 700; }
+  /* Agenda */
+  .semana { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+  .dia { display: flex; flex-direction: column; gap: 4px; }
+  .dia .nome { font-size: 12px; color: var(--muted-foreground); text-align: center; }
+  .dia .col { height: 120px; border-radius: 8px; background: var(--background); padding: 4px; display: flex; flex-direction: column; justify-content: flex-end; gap: 3px; }
+  .dia .col i { border-radius: 4px; background: var(--c); }
+  .dia .status { font-size: 11px; text-align: center; color: var(--muted-foreground); }
+  .dia.hoje .col { outline: 1.5px solid var(--primary); }
+  .dia.futuro .col i { opacity: .35; }
+  .dia.perdido .col i { opacity: .25; }
+  .resumo-sem { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 14px; }
+  .resumo-sem b { font-size: 20px; }
+  .cats { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 12px; color: var(--muted-foreground); margin-top: auto; }
+  .cats span { display: flex; align-items: center; gap: 6px; }
+  .cats span::before { content: ""; width: 10px; height: 10px; border-radius: 3px; background: var(--c); }
+  .faixa-plano { font-size: 13px; color: var(--muted-foreground); }
+  .faixa-plano b { color: var(--foreground); }
+  /* Progresso */
+  .prog-num { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+  .prog-num b { white-space: nowrap; }
+  .prog-num b { font-size: 34px; color: var(--success); }
+  .grafico { width: 100%; height: auto; display: block; }
+  .mapa { display: grid; grid-template-columns: repeat(52, 1fr); grid-auto-flow: column; grid-template-rows: repeat(7, 1fr); gap: 2px; }
+  .mapa i { aspect-ratio: 1; border-radius: 2px; background: var(--background); }
+  .mapa i[data-n="1"] { background: color-mix(in srgb, var(--primary) 30%, var(--background)); }
+  .mapa i[data-n="2"] { background: color-mix(in srgb, var(--primary) 60%, var(--background)); }
+  .mapa i[data-n="3"] { background: color-mix(in srgb, var(--primary) 85%, var(--background)); }
+  .mapa-leg { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted-foreground); }
+
+  /* Conquistas */
+  .t-conq { grid-column: 1 / 4; }
+  .t-wrap { grid-column: 4 / 7; }
+  .nivel { display: flex; align-items: center; gap: 16px; }
+  .nivel .num { width: 56px; height: 56px; border-radius: 14px; background: var(--background); border: 1.5px solid var(--primary); display: grid; place-items: center; font-size: 24px; color: var(--primary); flex-shrink: 0; }
+  .nivel > div:last-child { flex: 1; }
+  .nivel small { font-size: 13px; color: var(--muted-foreground); }
+  .medalhas { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .medalha { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; font-size: 12px; color: var(--muted-foreground); }
+  .medalha i { width: 58px; height: 58px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-weight: 700; font-size: 14px; font-stretch: 125%;
+               background: radial-gradient(circle at 35% 30%, var(--c), color-mix(in srgb, var(--c) 55%, #000)); color: var(--cat-foreground);
+               border: 3px solid color-mix(in srgb, var(--c) 40%, var(--background)); }
+  .medalha.nova i { outline: 2px solid var(--primary); outline-offset: 3px; }
+  .medalha.travada i { background: var(--background); border-color: var(--border); color: var(--muted-foreground); }
+  .medalha.travada { opacity: .8; }
+  .desafio { display: grid; grid-template-columns: auto 1fr auto; gap: 14px; align-items: center; padding: 14px 16px; border-radius: 12px; background: var(--background); border: 1px dashed color-mix(in srgb, var(--cat-ritmo) 60%, var(--border)); }
+  .desafio .carta { width: 38px; height: 50px; border-radius: 6px; background: var(--cat-ritmo); color: var(--cat-foreground); display: grid; place-items: center; font-weight: 700; font-size: 18px; transform: rotate(-6deg); }
+  .desafio b { display: block; font-size: 15px; }
+  .desafio small { font-size: 13px; color: var(--muted-foreground); }
+  .desafio .xp { font-size: 16px; color: var(--success); }
+  /* Wrapped */
+  .wrap-corpo { display: grid; grid-template-columns: 200px 1fr; gap: 24px; align-items: center; flex: 1; }
+  .story { aspect-ratio: 9 / 16; border-radius: 14px; border: 1px solid var(--border); padding: 16px 14px; display: flex; flex-direction: column; gap: 10px; position: relative; overflow: hidden;
+           background: linear-gradient(170deg, #3a2a22, var(--background) 65%); }
+  .story::after { content: ""; position: absolute; inset: auto 0 0 0; height: 5px;
+                  background: linear-gradient(90deg, var(--cat-aquecimento) 0 20%, var(--cat-tecnica) 20% 40%, var(--cat-escalas) 40% 60%, var(--cat-ritmo) 60% 80%, var(--cat-teoria) 80%); }
+  .story .rot { font-size: 11px; letter-spacing: .04em; }
+  .story .grande { font-size: 30px; line-height: 1; }
+  .story .linha { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted-foreground); border-top: 1px solid var(--border); padding-top: 6px; }
+  .story .linha b { color: var(--foreground); }
+  .story svg { width: 100%; height: auto; margin-top: auto; }
+  .wrap-lado p { color: var(--muted-foreground); font-size: 15px; margin-top: 8px; }
+  .wrap-lado ul { list-style: none; margin-top: 14px; display: flex; flex-direction: column; gap: 8px; font-size: 14px; }
+  .wrap-lado li { display: flex; gap: 10px; }
+  .wrap-lado li::before { content: "✓"; color: var(--primary); font-weight: 700; }
+
+  /* Demonstração */
+  .demo { margin-top: 48px; display: grid; grid-template-columns: 300px 1fr; gap: 20px; }
+  .demo-lado { display: flex; flex-direction: column; gap: 20px; }
+  .bloco { border: 1px solid var(--border); border-radius: 14px; background: var(--card); padding: 20px; }
+  .alt { display: flex; flex-wrap: wrap; gap: 2px; padding: 4px; border: 1px solid var(--border); border-radius: 8px; background: var(--background); margin-top: 10px; }
+  .alt button { flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px; padding: 8px 10px; border-radius: 5px; border: 0; background: none; color: var(--muted-foreground); font: inherit; font-size: 14px; cursor: pointer; }
+  .alt button.on { background: var(--secondary); color: var(--foreground); }
+  .fora { margin-top: 14px; font-size: 14px; color: var(--muted-foreground); }
+  .fora b { color: var(--foreground); }
+  .demo .painel svg { padding: 18px 12px 8px; }
+
+  /* Tabs */
+  .tabs-grid { margin-top: 56px; display: grid; grid-template-columns: 1.2fr 1fr; gap: 40px; align-items: center; }
+  .tab-card { border: 1px solid var(--border); border-radius: 16px; background: var(--card); padding: 24px; }
+  .tab-cab { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 18px; }
+  .tab-cab b { font-size: 16px; }
+  .tab-svg { width: 100%; height: auto; display: block; }
+  .rampa { margin-top: 18px; display: flex; align-items: flex-end; gap: 6px; height: 64px; }
+  .rampa i { flex: 1; border-radius: 4px 4px 0 0; background: var(--secondary); position: relative; }
+  .rampa i.feito { background: color-mix(in srgb, var(--primary) 55%, var(--secondary)); }
+  .rampa i.agora { background: var(--primary); }
+  .rampa-leg { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted-foreground); margin-top: 8px; }
+  .lista-num { list-style: none; display: flex; flex-direction: column; gap: 22px; }
+  .lista-num li { display: grid; grid-template-columns: 40px 1fr; gap: 14px; }
+  .lista-num li span { width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--border); display: grid; place-items: center; font-size: 15px; color: var(--primary); }
+  .lista-num b { display: block; font-size: 17px; margin-bottom: 2px; }
+  .lista-num p { color: var(--muted-foreground); font-size: 15px; }
+
+  /* Depoimentos */
+  .depos { margin-top: 48px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .depo { border: 1px dashed var(--border); border-radius: 14px; padding: 24px; display: flex; flex-direction: column; gap: 18px; }
+  .depo p { font-size: 17px; }
+  .depo .quem { display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--muted-foreground); }
+  .depo .quem i { width: 36px; height: 36px; border-radius: 50%; background: var(--secondary); }
+  .aviso { margin-top: 16px; font-size: 13px; color: var(--muted-foreground); }
+
+  /* Preço */
+  .planos { margin-top: 48px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 880px; }
+  .plano { border: 1px solid var(--border); border-radius: 16px; background: var(--card); padding: 30px; display: flex; flex-direction: column; gap: 20px; }
+  .plano.pro { border-color: var(--primary); }
+  .plano .preco { font-size: 44px; }
+  .plano .preco small { font-size: 15px; color: var(--muted-foreground); font-stretch: 100%; font-weight: 400; }
+  .plano ul { list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 15px; flex: 1; }
+  .plano li { display: flex; gap: 10px; }
+  .plano li::before { content: "✓"; color: var(--primary); font-weight: 700; }
+  .plano .nome { display: flex; align-items: center; gap: 10px; }
+
+  /* FAQ */
+  .faq { margin-top: 40px; max-width: 820px; border-top: 1px solid var(--border); }
+  .faq details { border-bottom: 1px solid var(--border); padding: 22px 0; }
+  .faq summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; gap: 20px; font-size: 18px; font-weight: 600; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: "+"; color: var(--primary); font-size: 22px; line-height: 1; }
+  .faq details[open] summary::after { content: "−"; }
+  .faq details p { margin-top: 12px; color: var(--muted-foreground); max-width: 680px; }
+
+  /* CTA final */
+  .final { text-align: center; border-top: 1px solid var(--border); }
+  .final .sec-titulo, .final .sec-sub { margin-left: auto; margin-right: auto; }
+  .final .espera { margin: 36px auto 0; }
+
+  footer { border-top: 1px solid var(--border); padding: 40px 0; font-size: 14px; color: var(--muted-foreground); }
+  footer .wrap { display: flex; justify-content: space-between; gap: 24px; flex-wrap: wrap; align-items: center; }
+  footer .redes { display: flex; gap: 20px; }
+  footer a:hover { color: var(--foreground); }
+
+  @media (max-width: 900px) {
+    section { padding: 80px 0; }
+    .wrap { padding: 0 16px; }
+    .links { display: none; }
+    .hero { padding: 56px 0 72px; }
+    .hero .wrap, .demo, .tabs-grid { grid-template-columns: 1fr; }
+    .pedais, .depos, .planos { grid-template-columns: 1fr; }
+    .vitrine { grid-template-columns: 1fr; }
+    .t-hoje, .t-metro, .t-afina, .t-agenda, .t-prog, .t-conq, .t-wrap { grid-column: auto; grid-row: auto; }
+    .wrap-corpo { grid-template-columns: 1fr; }
+    .story { max-width: 220px; }
+    .metro, .afina { flex-direction: column; align-items: flex-start; }
+    .espera { flex-direction: column; }
+    .espera .btn { justify-content: center; }
+    .painel-topo .acorde { font-size: 34px; min-width: 84px; }
+  }
+  @media (max-width: 520px) { nav .btn { display: none; } }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="logo h" href="#"><span class="pilot"></span>GuitarTrek</a>
+    <div class="links">
+      <a href="#recursos">Recursos</a><a href="#app">O app</a><a href="#demo">Demonstração</a><a href="#musicas">Suas músicas</a><a href="#precos">Preços</a><a href="#faq">Dúvidas</a>
+    </div>
+    <div class="idiomas"><span class="on">PT</span><span>EN</span><span>ES</span></div>
+    <a class="btn btn-pri" href="#espera">Lista de espera</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="wrap">
+    <div>
+      <span class="selo"><span class="pilot"></span>Beta fechado em breve</span>
+      <h1 class="h">Improvise com o <em>braço inteiro</em> na cabeça.</h1>
+      <p class="sub">Veja a escala em volta de cada acorde enquanto a backing track toca. Treine suas músicas em câmera lenta. E siga um plano que se monta sozinho, todo dia.</p>
+      <form class="espera" id="espera" onsubmit="event.preventDefault(); this.querySelector('button').textContent = 'Você está na lista ✓'">
+        <input type="email" required placeholder="seu@email.com" aria-label="Seu e-mail">
+        <button class="btn btn-pri" type="submit">Entrar na lista de espera</button>
+      </form>
+      <p class="nota-espera">Grátis para sempre no plano básico. Sem spam: só avisamos quando abrir.</p>
+    </div>
+
+    <div class="painel" aria-label="O app tocando um blues em Lá, com a escala em volta de cada acorde">
+      <div class="painel-topo">
+        <div>
+          <div class="rot">Agora</div>
+          <div class="acorde h" id="h-acorde">A7</div>
+          <div class="grau h" id="h-grau">I7</div>
+        </div>
+        <div>
+          <div class="rot">Blues de 12 · Lá · 90 BPM</div>
+          <div class="muted" style="font-size:14px;margin-top:6px">Escala: <b style="color:var(--foreground)">Blues de A</b></div>
+        </div>
+        <div class="tempos" id="h-tempos"><i class="um"></i><i></i><i></i><i></i></div>
+      </div>
+      <div class="compassos" id="h-compassos"></div>
+      <svg id="h-braco" viewBox="0 0 760 230"></svg>
+      <div class="painel-rodape">
+        <span><i style="background:var(--primary)"></i>Tônica do acorde</span>
+        <span><i style="background:var(--foreground)"></i>Nota do acorde</span>
+        <span><i style="border:2px solid var(--cat-escalas);opacity:.6"></i>Resto da escala</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="faixa">
+  <div class="wrap">
+    <div><b class="h">12</b><span>tons, todas as escalas e modos</span></div>
+    <div><b class="h">5</b><span>formas do CAGED, acorde por acorde</span></div>
+    <div><b class="h">∞</b><span>backing tracks que você monta</span></div>
+    <div><b class="h">0 → 100%</b><span>velocidade no trecho que trava você</span></div>
+  </div>
+</div>
+
+<!-- PILARES -->
+<section id="recursos">
+  <div class="wrap">
+    <span class="rot">O que tem no GuitarTrek</span>
+    <h2 class="sec-titulo h" style="margin-top:14px">Três pedais. Uma rotina inteira de estudo.</h2>
+    <p class="sec-sub">Tudo o que você usaria em cinco apps diferentes, ligado entre si: o que você toca na backing acende no braço, e o que você treina entra no seu progresso.</p>
+
+    <div class="pedais">
+      <article class="pedal" style="--cor:var(--cat-escalas)">
+        <span class="led"></span>
+        <div class="knobs"><i style="--r:-40deg"></i><i style="--r:20deg"></i><i style="--r:60deg"></i></div>
+        <h3 class="h">Braço + CAGED</h3>
+        <p>Escalas, acordes e as 5 formas do CAGED em qualquer tom, com a escala desenhada em volta de cada acorde.</p>
+        <ul><li>Notas ou graus (1, b3, 5…)</li><li>Posições da escala, uma por vez</li><li>Notas do acorde que ficam fora da escala</li></ul>
+      </article>
+      <article class="pedal" style="--cor:var(--cat-ritmo)">
+        <span class="led"></span>
+        <div class="knobs"><i style="--r:30deg"></i><i style="--r:-10deg"></i><i style="--r:-50deg"></i></div>
+        <h3 class="h">Backing + improviso</h3>
+        <p>Bateria, baixo e acordes de verdade. O braço acompanha a troca de acorde, e o app ouve você pelo microfone.</p>
+        <ul><li>Rock, blues, funk, pop, bossa</li><li>Monte a sua progressão, com seções</li><li>Desafio de improviso do dia</li></ul>
+      </article>
+      <article class="pedal" style="--cor:var(--cat-aquecimento)">
+        <span class="led"></span>
+        <div class="knobs"><i style="--r:-20deg"></i><i style="--r:50deg"></i><i style="--r:10deg"></i></div>
+        <h3 class="h">Treino que se monta sozinho</h3>
+        <p>Diga o objetivo e quanto tempo você tem. O app monta a semana, sobe o BPM no seu ritmo e mostra a evolução.</p>
+        <ul><li>Metrônomo, drone e afinador</li><li>Streak que não pune o dia corrido</li><li>"Você está 12 BPM mais rápido"</li></ul>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- VITRINE: as outras telas -->
+<section id="app" style="padding-top:0">
+  <div class="wrap">
+    <span class="rot">Por dentro do app</span>
+    <h2 class="sec-titulo h" style="margin-top:14px">Tudo o que você usa para estudar, num lugar só.</h2>
+    <p class="sec-sub">Do aquecimento ao recorde de BPM: o treino do dia, o metrônomo, o afinador, a agenda da semana e a sua evolução, falando entre si. E cada treino vale XP, medalha e um resumo do mês para postar.</p>
+
+    <div class="vitrine">
+      <!-- Treino de hoje -->
+      <article class="tela t-hoje">
+        <div class="tela-cab"><span class="rot">Treino de hoje</span><span class="muted" style="font-size:13px;display:flex;align-items:center;gap:8px"><span class="pilot"></span>6 dias seguidos</span></div>
+        <b class="h" style="font-size:30px">40 minutos, 4 blocos</b>
+        <div class="meta">
+          <svg viewBox="0 0 72 72" aria-hidden="true">
+            <circle cx="36" cy="36" r="30" fill="none" stroke="var(--secondary)" stroke-width="7"/>
+            <circle cx="36" cy="36" r="30" fill="none" stroke="var(--success)" stroke-width="7" stroke-linecap="round" stroke-dasharray="113 189" transform="rotate(-90 36 36)"/>
+            <text x="36" y="41" text-anchor="middle" fill="var(--foreground)" font-size="16" font-weight="700" style="font-stretch:125%">3/5</text>
+          </svg>
+          <div><b>Meta da semana</b><small>Faltam 2 treinos · semana 3 de 8, velocidade</small>
+            <div class="dias"><i class="ok"></i><i class="ok"></i><i class="ok"></i><i class="hoje"></i><i></i></div></div>
+        </div>
+        <div class="blocos">
+          <div class="bloco-t feito"><span class="ped" style="--c:var(--cat-aquecimento)"></span><div><b>Cromático 1-2-3-4</b><small>Aquecimento · 6 min</small></div><div class="bpm h">90<span>feito</span></div></div>
+          <div class="bloco-t"><span class="ped" style="--c:var(--cat-tecnica)"></span><div><b>Spider walk</b><small>Técnica · 10 min</small></div><div class="bpm h">112<span class="rec">+4 recorde</span></div></div>
+          <div class="bloco-t"><span class="ped" style="--c:var(--cat-escalas)"></span><div><b>Pentatônica de Lá, 5 formas</b><small>Escalas · 12 min</small></div><div class="bpm h">96</div></div>
+          <div class="bloco-t"><span class="ped" style="--c:var(--cat-ritmo)"></span><div><b>Improviso sobre blues em A</b><small>Ritmo · 12 min · backing track</small></div><div class="bpm h">90</div></div>
+        </div>
+        <a class="btn btn-pri" href="#espera">Começar o treino</a>
+      </article>
+
+      <!-- Metrônomo -->
+      <article class="tela t-metro">
+        <div class="tela-cab"><span class="rot">Metrônomo</span><span class="muted" style="font-size:13px">Spider walk · 4:12</span></div>
+        <div class="metro">
+          <svg viewBox="0 0 150 150" aria-hidden="true">
+            <circle class="pulso" cx="75" cy="75" r="62" fill="none" stroke="var(--primary)" stroke-width="2"/>
+            <g id="ticks"></g>
+            <circle cx="75" cy="75" r="52" fill="#120d0b" stroke="#5a4d44" stroke-width="3"/>
+            <line x1="75" y1="75" x2="75" y2="30" stroke="var(--primary)" stroke-width="4" stroke-linecap="round" transform="rotate(48 75 75)"/>
+            <circle cx="75" cy="75" r="30" fill="#1d1613"/>
+            <text x="75" y="80" text-anchor="middle" fill="var(--primary)" font-size="26" font-weight="700" style="font-stretch:125%">112</text>
+            <text x="75" y="96" text-anchor="middle" fill="var(--muted-foreground)" font-size="9">BPM · 4/4</text>
+          </svg>
+          <div>
+            <div class="rot" style="margin-bottom:8px">Subdivisão</div>
+            <div class="subs"><span style="--c:var(--cat-aquecimento)">♩</span><span class="sel" style="--c:var(--cat-tecnica)">♫</span><span style="--c:var(--cat-escalas)">3</span><span style="--c:var(--cat-ritmo)">♬</span></div>
+            <p class="trainer"><b>Speed trainer:</b> +4 BPM a cada 8 compassos, até 124</p>
+            <div class="barra"><i></i></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Afinador -->
+      <article class="tela t-afina">
+        <div class="tela-cab"><span class="rot">Afinador</span><span class="muted" style="font-size:13px">Afinação padrão</span></div>
+        <div class="afina">
+          <svg viewBox="0 0 200 116" aria-hidden="true">
+            <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="var(--secondary)" stroke-width="10" stroke-linecap="round"/>
+            <path d="M 88 21 A 80 80 0 0 1 112 21" fill="none" stroke="var(--success)" stroke-width="10"/>
+            <g id="marcas"></g>
+            <line x1="100" y1="100" x2="100" y2="30" stroke="var(--foreground)" stroke-width="3" stroke-linecap="round" transform="rotate(6 100 100)"/>
+            <circle cx="100" cy="100" r="7" fill="var(--foreground)"/>
+          </svg>
+          <div>
+            <div style="display:flex;align-items:baseline;gap:10px"><b class="h" style="font-size:52px;line-height:1">A</b><span style="color:var(--success);font-weight:600">+3 cents</span></div>
+            <p class="muted" style="font-size:13px;margin-top:4px">Quase lá: aperte um tiquinho</p>
+            <div class="cordas"><span class="ok">E</span><span class="on">A</span><span>D</span><span>G</span><span>B</span><span>E</span></div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Agenda -->
+      <article class="tela t-agenda">
+        <div class="tela-cab"><span class="rot">Agenda</span><span class="faixa-plano">Semana 3 de 8 · <b>Velocidade</b></span></div>
+        <div class="semana" id="semana"></div>
+        <div class="resumo-sem"><span><b class="h">1h 52</b> de 4h 10 nesta semana</span><span class="muted">Qua perdida? Arraste para sexta.</span></div>
+        <div class="barra" style="margin-top:0"><i style="width:45%"></i></div>
+        <div class="cats"><span style="--c:var(--cat-aquecimento)">Aquecimento</span><span style="--c:var(--cat-tecnica)">Técnica</span><span style="--c:var(--cat-escalas)">Escalas</span><span style="--c:var(--cat-ritmo)">Ritmo</span><span style="--c:var(--cat-teoria)">Teoria</span></div>
+      </article>
+
+      <!-- Progresso -->
+      <article class="tela t-prog">
+        <div class="tela-cab"><span class="rot">Progresso</span><span class="muted" style="font-size:13px">Spider walk · 30 dias</span></div>
+        <div class="prog-num"><b class="h">+20 BPM</b><span class="muted" style="font-size:14px">mais rápido que há 30 dias</span></div>
+        <svg class="grafico" viewBox="0 0 400 110" id="grafico" aria-hidden="true"></svg>
+        <div class="mapa" id="mapa" aria-label="Dias treinados no último ano"></div>
+        <div class="mapa-leg"><span>Dias treinados no último ano</span><span>Recorde: 21 dias seguidos</span></div>
+      </article>
+
+      <!-- Conquistas -->
+      <article class="tela t-conq">
+        <div class="tela-cab"><span class="rot">Conquistas</span><span class="muted" style="font-size:13px">14 de 40 desbloqueadas</span></div>
+        <div class="nivel">
+          <span class="num h">7</span>
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline"><b>Nível 7 · Solista de garagem</b><small>2.340 / 3.000 XP</small></div>
+            <div class="barra"><i style="width:78%"></i></div>
+          </div>
+        </div>
+        <div class="medalhas">
+          <div class="medalha nova"><i style="--c:var(--cat-tecnica)">+20</i>20 BPM ganhos</div>
+          <div class="medalha"><i style="--c:var(--cat-escalas)">5×</i>As 5 formas</div>
+          <div class="medalha"><i style="--c:var(--cat-aquecimento)">21d</i>21 dias seguidos</div>
+          <div class="medalha"><i style="--c:var(--cat-ritmo)">I·IV·V</i>Primeiro blues</div>
+          <div class="medalha"><i style="--c:var(--cat-teoria)">♪</i>Ouvido afiado</div>
+          <div class="medalha"><i style="--c:var(--cat-escalas)">3ª</i>Mirou na 3ª</div>
+          <div class="medalha travada"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></i>100 dias</div>
+          <div class="medalha travada"><i><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></i>ii–V–I</div>
+        </div>
+        <div class="desafio">
+          <span class="carta h">3</span>
+          <div><b>Desafio do dia: só 3 notas</b><small>Improvise 2 minutos em Ré dórico usando só 3 notas</small></div>
+          <span class="xp h">+50 XP</span>
+        </div>
+      </article>
+
+      <!-- Wrapped -->
+      <article class="tela t-wrap">
+        <div class="tela-cab"><span class="rot">Retrospectiva do mês</span><span class="muted" style="font-size:13px">Outubro</span></div>
+        <div class="wrap-corpo">
+          <div class="story" aria-label="Card da retrospectiva para compartilhar">
+            <span class="rot" style="display:flex;align-items:center;gap:6px"><span class="pilot" style="width:5px;height:5px"></span>GuitarTrek · Outubro</span>
+            <div><div class="grande h">18h 40</div><div style="font-size:11px;color:var(--muted-foreground)">de guitarra este mês</div></div>
+            <div class="linha"><span>BPM ganhos</span><b style="color:var(--success)">+20</b></div>
+            <div class="linha"><span>Melhor sequência</span><b>21 dias</b></div>
+            <div class="linha"><span>Escala do mês</span><b>Penta de A</b></div>
+            <div class="linha"><span>Recordes</span><b>9</b></div>
+            <svg viewBox="-14 0 148 112" id="radar" aria-hidden="true"></svg>
+          </div>
+          <div class="wrap-lado">
+            <b class="h" style="font-size:24px">Seu mês em um card</b>
+            <p>Todo começo de mês, o app junta suas horas, recordes e evolução num card pronto para o Story.</p>
+            <ul><li>Horas, recordes e melhor sequência</li><li>Radar: velocidade, ritmo, teoria, ouvido e repertório</li><li>Comparação com o mês anterior</li></ul>
+            <a class="btn btn-sec" href="#espera" style="margin-top:20px">Compartilhar no Instagram</a>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO -->
+<section id="demo" style="padding-top:0">
+  <div class="wrap">
+    <span class="rot">Experimente aqui mesmo</span>
+    <h2 class="sec-titulo h" style="margin-top:14px">Escolha um acorde. Veja onde improvisar.</h2>
+    <p class="sec-sub">É assim que se pensa um solo: você segura a forma do acorde e toca a escala em volta dela. Troque a forma e veja a região andar pelo braço.</p>
+
+    <div class="demo">
+      <div class="demo-lado">
+        <div class="bloco">
+          <div class="rot">Forma CAGED do A7</div>
+          <div class="alt" id="d-formas"></div>
+          <p class="fora">Sobre o blues de A, fica fora da escala: <b>C# (3)</b>. É a nota que deixa o som "maior": mire nela na troca de acorde.</p>
+        </div>
+        <div class="bloco">
+          <div class="rot">Mostrar</div>
+          <div class="alt" id="d-mostrar"><button class="on" data-v="grau"><span class="pilot"></span>Graus</button><button data-v="nota">Notas</button></div>
+        </div>
+      </div>
+      <div class="painel"><svg id="d-braco" viewBox="0 0 1080 230"></svg></div>
+    </div>
+  </div>
+</section>
+
+<!-- SUAS MÚSICAS -->
+<section id="musicas" style="padding-top:0">
+  <div class="wrap">
+    <span class="rot">Suas músicas</span>
+    <h2 class="sec-titulo h" style="margin-top:14px">O trecho que trava você, em câmera lenta.</h2>
+    <p class="sec-sub">Abra a tab da música que você gosta, marque o trecho difícil e deixe o app subir a velocidade aos poucos, a cada repetição limpa.</p>
+
+    <div class="tabs-grid">
+      <div class="tab-card">
+        <div class="tab-cab"><b class="h">Compassos 12–15</b><span class="rot">Estudo de trecho</span></div>
+        <svg class="tab-svg" viewBox="0 0 560 150" id="tab"></svg>
+        <div class="rampa" id="rampa"></div>
+        <div class="rampa-leg"><span>60%</span><span>Agora: <b style="color:var(--primary)">80%</b> · 3 repetições limpas</span><span>100%</span></div>
+      </div>
+      <ol class="lista-num">
+        <li><span class="h">1</span><div><b>Traga a sua tab</b><p>Arquivos do Guitar Pro (.gp, .gp5). Ficam privados na sua conta.</p></div></li>
+        <li><span class="h">2</span><div><b>Marque o trecho</b><p>Do compasso 12 ao 15, por exemplo. O app toca em loop, com contagem antes.</p></div></li>
+        <li><span class="h">3</span><div><b>Suba a velocidade sem perceber</b><p>Começa em 60% e sobe 5% a cada 3 repetições limpas, até a velocidade original.</p></div></li>
+        <li><span class="h">4</span><div><b>Toque com a banda</b><p>Envie a música e o app tira a guitarra: você toca a sua parte por cima.</p></div></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- DEPOIMENTOS -->
+<section style="padding-top:0">
+  <div class="wrap">
+    <span class="rot">Quem já testou</span>
+    <h2 class="sec-titulo h" style="margin-top:14px">Feito por guitarrista, testado por guitarristas.</h2>
+    <div class="depos">
+      <div class="depo"><p>"Depoimento de quem participou do beta fechado."</p><div class="quem"><i></i>Nome · guitarrista há X anos</div></div>
+      <div class="depo"><p>"Depoimento de quem participou do beta fechado."</p><div class="quem"><i></i>Nome · professor de guitarra</div></div>
+      <div class="depo"><p>"Depoimento de quem participou do beta fechado."</p><div class="quem"><i></i>Nome · toca em banda</div></div>
+    </div>
+    <p class="aviso">Espaço reservado: entra com depoimentos reais (com autorização) depois do beta.</p>
+  </div>
+</section>
+
+<!-- PREÇOS -->
+<section id="precos" style="padding-top:0">
+  <div class="wrap">
+    <span class="rot">Preços</span>
+    <h2 class="sec-titulo h" style="margin-top:14px">Útil de graça. Completo no Pro.</h2>
+    <div class="planos">
+      <div class="plano">
+        <div class="nome h" style="font-size:20px">Grátis</div>
+        <div class="preco h">R$ 0</div>
+        <ul><li>Metrônomo, drone e afinador</li><li>Braço com escalas, acordes e CAGED</li><li>Backing tracks prontas</li><li>Progresso básico</li><li>Desafio de improviso do dia</li></ul>
+        <a class="btn btn-sec" href="#espera">Entrar na lista</a>
+      </div>
+      <div class="plano pro">
+        <div class="nome h" style="font-size:20px"><span class="pilot"></span>Pro</div>
+        <div class="preco h">R$ 19<small> /mês · valor a definir</small></div>
+        <ul><li>Tudo do grátis</li><li>Treino que se monta sozinho + agenda</li><li>Laboratório de improviso completo</li><li>Suas backing tracks e tabs, sem limite</li><li>Separador de faixas ilimitado</li></ul>
+        <a class="btn btn-pri" href="#espera">Quero o Pro no lançamento</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" style="padding-top:0">
+  <div class="wrap">
+    <span class="rot">Dúvidas</span>
+    <h2 class="sec-titulo h" style="margin-top:14px">Perguntas frequentes</h2>
+    <div class="faq">
+      <details><summary>Serve para iniciante?</summary><p>Serve para quem já toca alguns acordes e quer evoluir: improvisar, ganhar velocidade e entender o braço. Se você está começando do zero, o metrônomo, o afinador e o braço já ajudam desde o primeiro dia.</p></details>
+      <details><summary>Preciso de equipamento especial?</summary><p>Não. Funciona no navegador do computador e do celular. Para o app ouvir você, basta o microfone do celular ou do notebook.</p></details>
+      <details><summary>Vocês têm tabs das músicas famosas?</summary><p>Não temos um catálogo: você traz as suas tabs (arquivos do Guitar Pro), que ficam privadas na sua conta. Assim respeitamos os direitos de quem compôs as músicas.</p></details>
+      <details><summary>Funciona em inglês e espanhol?</summary><p>Sim, o app e o site estão sendo feitos em português, inglês e espanhol.</p></details>
+      <details><summary>Quando abre?</summary><p>Primeiro um beta fechado com convidados. Quem estiver na lista de espera recebe o convite antes de todo mundo.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="final">
+  <div class="wrap">
+    <h2 class="sec-titulo h">Pronto para sair da caixa 1 da pentatônica?</h2>
+    <p class="sec-sub">Entre na lista e receba o convite do beta antes de todo mundo.</p>
+    <form class="espera" onsubmit="event.preventDefault(); this.querySelector('button').textContent = 'Você está na lista ✓'">
+      <input type="email" required placeholder="seu@email.com" aria-label="Seu e-mail">
+      <button class="btn btn-pri" type="submit">Entrar na lista de espera</button>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span class="logo h" style="font-size:16px"><span class="pilot"></span>GuitarTrek</span>
+    <div class="redes"><a href="#">Instagram</a><a href="#">TikTok</a><a href="#">YouTube</a></div>
+    <span>Termos · Privacidade · © 2026</span>
+  </div>
+</footer>
+
+<script>
+  // ---------- teoria mínima (a mesma ideia do web/src/theory) ----------
+  const NOTAS = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+  const GRAUS = ['1', 'b2', '2', 'b3', '3', '4', 'b5', '5', 'b6', '6', 'b7', '7']
+  const SOLTAS = ['E', 'B', 'G', 'D', 'A', 'E']                      // corda 0 = Mi aguda
+  const idx = (n) => NOTAS.indexOf(n)
+  const notaNaCasa = (corda, casa) => NOTAS[(idx(SOLTAS[corda]) + casa) % 12]
+  const grau = (tonica, nota) => GRAUS[(idx(nota) - idx(tonica) + 12) % 12]
+  const BLUES_A = ['A', 'C', 'D', 'D#', 'E', 'G']
+  const janela = (d) => { const c = d.map(([, k]) => k); return [Math.max(0, Math.min(...c) - 1), Math.max(...c) + 1] }
+
+  // desenhos [corda, casa] dos acordes (formas CAGED)
+  const A7 = { C: [[0, 9], [1, 10], [2, 12], [3, 11], [4, 12]], A: [[0, 0], [1, 2], [2, 0], [3, 2], [4, 0]], G: [[0, 3], [1, 2], [2, 2], [3, 2], [4, 4], [5, 5]],
+               E: [[0, 5], [1, 5], [2, 6], [3, 5], [4, 7], [5, 5]], D: [[0, 9], [1, 8], [2, 9], [3, 7]] }
+  const D7 = [[0, 5], [1, 7], [2, 5], [3, 7], [4, 5]]                   // forma de A, casa 5
+  const E7 = [[0, 7], [1, 9], [2, 7], [3, 9], [4, 7]]                   // forma de A, casa 7
+
+  // ---------- desenho de um braço em SVG ----------
+  const ns = 'http://www.w3.org/2000/svg'
+  function braco(svg, { casas, larg, desenho, raiz, mostrar = 'grau' }) {
+    svg.innerHTML = ''
+    const X0 = 34, Y0 = 22, ALT = 32
+    const xT = (c) => X0 + c * larg
+    const xN = (c) => (c === 0 ? X0 / 2 : xT(c) - larg / 2)
+    const y = (k) => Y0 + k * ALT
+    const el = (tag, a, txt) => { const e = document.createElementNS(ns, tag); for (const k in a) e.setAttribute(k, a[k]); if (txt != null) e.textContent = txt; svg.appendChild(e); return e }
+    const [de, ate] = janela(desenho)
+    const xF = de === 0 ? 0 : xT(de - 1)
+    el('rect', { x: xF, y: Y0 - 15, width: xT(ate) - xF, height: ALT * 5 + 30, rx: 8, fill: 'var(--primary)', opacity: .1 })
+    for (let c = 0; c <= casas; c++) el('line', { x1: xT(c), y1: y(0), x2: xT(c), y2: y(5), stroke: c === 0 ? '#6b5b50' : 'var(--accent)', 'stroke-width': c === 0 ? 5 : 2 })
+    for (let k = 0; k < 6; k++) el('line', { x1: X0, y1: y(k), x2: xT(casas), y2: y(k), stroke: '#8a7d70', 'stroke-width': 1 + k * .35 })
+    ;[3, 5, 7, 9].filter((c) => c <= casas).forEach((c) => el('circle', { cx: xN(c), cy: y(2.5), r: 4.5, fill: 'var(--secondary)' }))
+    if (casas >= 12) { el('circle', { cx: xN(12), cy: y(1.5), r: 4.5, fill: 'var(--secondary)' }); el('circle', { cx: xN(12), cy: y(3.5), r: 4.5, fill: 'var(--secondary)' }) }
+    for (let c = 1; c <= casas; c++) el('text', { x: xN(c), y: y(5) + 28, 'text-anchor': 'middle', fill: 'var(--muted-foreground)', 'font-size': 12 }, c)
+    el('polyline', { points: desenho.map(([k, c]) => `${xN(c)},${y(k)}`).join(' '), fill: 'none', stroke: 'var(--foreground)', 'stroke-width': 3, 'stroke-linejoin': 'round', opacity: .25 })
+    const doAcorde = (k, c) => desenho.some(([a, b]) => a === k && b === c)
+    for (let k = 0; k < 6; k++) for (let c = de; c <= ate; c++) {
+      const nota = notaNaCasa(k, c)
+      const acorde = doAcorde(k, c)
+      if (!acorde && !BLUES_A.includes(nota)) continue
+      const rot = mostrar === 'grau' ? grau(raiz, nota) : nota
+      if (acorde) {
+        const tonica = nota === raiz
+        el('circle', { cx: xN(c), cy: y(k), r: 13, fill: tonica ? 'var(--primary)' : 'var(--foreground)' })
+        el('text', { x: xN(c), y: y(k) + 4.5, 'text-anchor': 'middle', fill: tonica ? 'var(--primary-foreground)' : 'var(--background)', 'font-size': 12, 'font-weight': 700 }, rot)
+      } else {
+        el('circle', { cx: xN(c), cy: y(k), r: 10.5, fill: 'var(--card)', stroke: 'var(--cat-escalas)', 'stroke-width': 2, opacity: .6 })
+        el('text', { x: xN(c), y: y(k) + 4, 'text-anchor': 'middle', fill: 'var(--foreground)', 'font-size': 10.5, 'font-weight': 600, opacity: .7 }, rot)
+      }
+    }
+  }
+
+  // ---------- hero: o blues andando ----------
+  const BLUES = ['A7', 'D7', 'A7', 'A7', 'D7', 'D7', 'A7', 'A7', 'E7', 'D7', 'A7', 'E7']
+  const INFO = { A7: { d: A7.E, raiz: 'A', grau: 'I7' }, D7: { d: D7, raiz: 'D', grau: 'IV7' }, E7: { d: E7, raiz: 'E', grau: 'V7' } }
+  const hComp = document.getElementById('h-compassos')
+  hComp.innerHTML = BLUES.map((c) => `<span>${c.replace('7', '')}</span>`).join('')
+  const luzes = [...document.querySelectorAll('#h-tempos i')]
+  const calmo = matchMedia('(prefers-reduced-motion: reduce)').matches
+  let compasso = 0, tempo = 0
+  function tocarCompasso() {
+    const acorde = BLUES[compasso], info = INFO[acorde]
+    document.getElementById('h-acorde').textContent = acorde
+    document.getElementById('h-grau').textContent = info.grau
+    ;[...hComp.children].forEach((s, i) => s.classList.toggle('on', i === compasso))
+    braco(document.getElementById('h-braco'), { casas: 11, larg: 64, desenho: info.d, raiz: info.raiz })
+  }
+  tocarCompasso()
+  luzes[0].classList.add('on')
+  if (!calmo) setInterval(() => {
+    tempo = (tempo + 1) % 4
+    if (tempo === 0) { compasso = (compasso + 1) % BLUES.length; tocarCompasso() }
+    luzes.forEach((l, i) => l.classList.toggle('on', i <= tempo))
+  }, 667) // 90 BPM
+
+  // ---------- demo interativa ----------
+  let forma = 'E', mostrar = 'grau'
+  const dFormas = document.getElementById('d-formas')
+  dFormas.innerHTML = Object.keys(A7).map((f) => `<button data-f="${f}">${f}</button>`).join('')
+  function desenharDemo() {
+    dFormas.querySelectorAll('button').forEach((b) => { const on = b.dataset.f === forma; b.classList.toggle('on', on); b.innerHTML = (on ? '<span class="pilot"></span>' : '') + b.dataset.f })
+    document.querySelectorAll('#d-mostrar button').forEach((b) => { const on = b.dataset.v === mostrar; b.classList.toggle('on', on); b.innerHTML = (on ? '<span class="pilot"></span>' : '') + (b.dataset.v === 'grau' ? 'Graus' : 'Notas') })
+    braco(document.getElementById('d-braco'), { casas: 15, larg: 68, desenho: A7[forma], raiz: 'A', mostrar })
+  }
+  dFormas.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) { forma = b.dataset.f; desenharDemo() } })
+  document.getElementById('d-mostrar').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) { mostrar = b.dataset.v; desenharDemo() } })
+  desenharDemo()
+
+  // ---------- vitrine ----------
+  const svgEl = (pai, tag, a) => { const e = document.createElementNS(ns, tag); for (const k in a) e.setAttribute(k, a[k]); pai.appendChild(e); return e }
+  // marcas do knob do metrônomo
+  const ticks = document.getElementById('ticks')
+  for (let i = 0; i <= 20; i++) {
+    const ang = (-135 + i * 13.5) * Math.PI / 180
+    svgEl(ticks, 'line', { x1: 75 + Math.sin(ang) * 58, y1: 75 - Math.cos(ang) * 58, x2: 75 + Math.sin(ang) * 64, y2: 75 - Math.cos(ang) * 64,
+      stroke: i <= 13 ? 'var(--primary)' : 'var(--secondary)', 'stroke-width': 2, 'stroke-linecap': 'round' })
+  }
+  // marcas do afinador (-50 a +50 cents)
+  const marcas = document.getElementById('marcas')
+  for (let i = -5; i <= 5; i++) {
+    const ang = i * 15 * Math.PI / 180, r1 = i % 5 === 0 ? 60 : 64
+    svgEl(marcas, 'line', { x1: 100 + Math.sin(ang) * r1, y1: 100 - Math.cos(ang) * r1, x2: 100 + Math.sin(ang) * 70, y2: 100 - Math.cos(ang) * 70, stroke: 'var(--muted-foreground)', 'stroke-width': 1.5 })
+  }
+  // agenda: [dia, status, blocos em minutos por categoria]
+  const CAT = { a: 'var(--cat-aquecimento)', t: 'var(--cat-tecnica)', e: 'var(--cat-escalas)', r: 'var(--cat-ritmo)', h: 'var(--cat-teoria)' }
+  const SEMANA = [['Seg', 'feito', 'ok', [['a', 6], ['t', 10], ['e', 12], ['r', 12]]], ['Ter', 'feito', 'ok', [['a', 5], ['h', 10], ['r', 15]]],
+                  ['Qua', 'perdido', 'perdido', [['a', 6], ['t', 12], ['e', 12]]], ['Qui', 'hoje', 'hoje', [['a', 6], ['t', 10], ['e', 12], ['r', 12]]],
+                  ['Sex', 'futuro', '', [['a', 5], ['e', 15], ['r', 10]]], ['Sáb', 'futuro', '', [['a', 8], ['t', 20], ['e', 25], ['r', 20], ['h', 15]]], ['Dom', 'folga', 'folga', []]]
+  document.getElementById('semana').innerHTML = SEMANA.map(([nome, est, rot, blocos]) => `
+    <div class="dia ${est}"><span class="nome">${nome}</span>
+      <div class="col">${blocos.map(([c, m]) => `<i style="--c:${CAT[c]};height:${m * 1.2}px"></i>`).join('')}</div>
+      <span class="status" ${est === 'feito' ? 'style="color:var(--success)"' : est === 'perdido' ? 'style="color:var(--destructive)"' : est === 'hoje' ? 'style="color:var(--primary)"' : ''}>${rot === 'ok' ? '✓ feito' : rot}</span>
+    </div>`).join('')
+  // gráfico de BPM (30 dias, com recordes)
+  const g = document.getElementById('grafico')
+  const bpm = [92, 92, 94, 93, 96, 96, 97, 96, 99, 100, 100, 101, 100, 103, 104, 103, 105, 106, 106, 105, 108, 108, 109, 110, 109, 110, 111, 112, 111, 112]
+  const xg = (i) => 28 + i * (366 / 29), yg = (v) => 100 - (v - 88) * 3.6
+  ;[90, 100, 110].forEach((v) => { svgEl(g, 'line', { x1: 0, x2: 400, y1: yg(v), y2: yg(v), stroke: 'var(--secondary)', 'stroke-width': 1 }); const tx = svgEl(g, 'text', { x: 0, y: yg(v) - 4, 'text-anchor': 'start', fill: 'var(--muted-foreground)', 'font-size': 10 }); tx.textContent = v })
+  svgEl(g, 'path', { d: `M ${xg(0)} 104 ` + bpm.map((v, i) => `L ${xg(i)} ${yg(v)}`).join(' ') + ` L ${xg(29)} 104 Z`, fill: 'var(--success)', opacity: .1 })
+  svgEl(g, 'polyline', { points: bpm.map((v, i) => `${xg(i)},${yg(v)}`).join(' '), fill: 'none', stroke: 'var(--success)', 'stroke-width': 2.5, 'stroke-linejoin': 'round' })
+  let recorde = 0
+  bpm.forEach((v, i) => { if (v > recorde) { recorde = v; if (i % 4 === 3 || i === 29) svgEl(g, 'circle', { cx: xg(i), cy: yg(v), r: i === 29 ? 5 : 3, fill: i === 29 ? 'var(--primary)' : 'var(--success)' }) } })
+  // mapa de dias treinados (26 semanas), sempre o mesmo desenho
+  let semente = 7
+  const aleatorio = () => (semente = (semente * 9301 + 49297) % 233280) / 233280
+  document.getElementById('mapa').innerHTML = Array.from({ length: 364 }, (_, i) => {
+    const r = aleatorio() + i / 900
+    return `<i data-n="${r < .5 ? 0 : r < .75 ? 1 : r < .93 ? 2 : 3}"></i>`
+  }).join('')
+
+  // radar do wrapped: velocidade, ritmo, teoria, ouvido, repertório (0 a 1), mês passado e este mês
+  const radar = document.getElementById('radar')
+  const EIXOS = ['Velocidade', 'Ritmo', 'Teoria', 'Ouvido', 'Repertório']
+  const ponto = (i, v) => { const a = (-90 + i * 72) * Math.PI / 180; return [60 + Math.cos(a) * 40 * v, 58 + Math.sin(a) * 40 * v] }
+  const poligono = (vals) => vals.map((v, i) => ponto(i, v).join(',')).join(' ')
+  ;[1, .66, .33].forEach((v) => svgEl(radar, 'polygon', { points: poligono(EIXOS.map(() => v)), fill: 'none', stroke: 'var(--border)', 'stroke-width': 1 }))
+  svgEl(radar, 'polygon', { points: poligono([.55, .5, .4, .35, .45]), fill: 'none', stroke: 'var(--muted-foreground)', 'stroke-width': 1, 'stroke-dasharray': '3 2' })
+  svgEl(radar, 'polygon', { points: poligono([.8, .6, .7, .45, .55]), fill: 'var(--primary)', 'fill-opacity': .25, stroke: 'var(--primary)', 'stroke-width': 1.5 })
+  EIXOS.forEach((nome, i) => { const [x, y] = ponto(i, 1.32); const t = svgEl(radar, 'text', { x, y: y + 3, 'text-anchor': 'middle', fill: 'var(--muted-foreground)', 'font-size': 9 }); t.textContent = nome })
+
+  // ---------- tab do estudo de trecho ----------
+  const tab = document.getElementById('tab')
+  const t = (tag, a, txt) => { const e = document.createElementNS(ns, tag); for (const k in a) e.setAttribute(k, a[k]); if (txt != null) e.textContent = txt; tab.appendChild(e); return e }
+  t('rect', { x: 40, y: 6, width: 480, height: 138, rx: 8, fill: 'var(--primary)', opacity: .08 })
+  ;['e', 'B', 'G', 'D', 'A', 'E'].forEach((nome, k) => {
+    t('text', { x: 14, y: 22 + k * 22, fill: 'var(--muted-foreground)', 'font-size': 12, 'dominant-baseline': 'central' }, nome)
+    t('line', { x1: 30, y1: 22 + k * 22, x2: 550, y2: 22 + k * 22, stroke: 'var(--accent)', 'stroke-width': 1.5 })
+  })
+  ;[160, 280, 400].forEach((x) => t('line', { x1: x, y1: 22, x2: x, y2: 132, stroke: 'var(--muted-foreground)', 'stroke-width': 1, opacity: .5 }))
+  const lick = [[1, 8, 60], [0, 5, 88], [0, 8, 116], [1, 5, 140], [1, 8, 180], [2, 7, 208], [2, 5, 236], [3, 7, 262], [2, 5, 300], [1, 8, 328], [1, 5, 356], [0, 5, 382], [3, 7, 420], [2, 5, 448], [3, 5, 476], [4, 7, 504]]
+  lick.forEach(([k, casa, x], i) => {
+    const atual = i === 6
+    t('rect', { x: x - 10, y: 22 + k * 22 - 9, width: 20, height: 18, rx: 4, fill: atual ? 'var(--primary)' : 'var(--card)' })
+    t('text', { x, y: 22 + k * 22, 'text-anchor': 'middle', 'dominant-baseline': 'central', 'font-size': 13, 'font-weight': 700, fill: atual ? 'var(--primary-foreground)' : 'var(--foreground)' }, casa)
+  })
+  t('line', { x1: 236, y1: 10, x2: 236, y2: 140, stroke: 'var(--primary)', 'stroke-width': 2 })
+  document.getElementById('rampa').innerHTML = [60, 65, 70, 75, 80, 85, 90, 95, 100]
+    .map((v) => `<i class="${v < 80 ? 'feito' : v === 80 ? 'agora' : ''}" style="height:${(v - 40) / 60 * 100}%"></i>`).join('')
+</script>
+</body>
+</html>

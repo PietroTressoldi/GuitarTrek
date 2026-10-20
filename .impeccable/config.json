@@ -1,0 +1,80 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "dark-glow",
+        "value": "*",
+        "files": [
+          "docs/mockups/index.html"
+        ],
+        "createdAt": "2026-10-10T01:16:29.838Z",
+        "reason": "Claude: glows representam LEDs e válvulas acesas (literal ao tema amp/pedal) num mockup de exploração"
+      },
+      {
+        "rule": "nested-cards",
+        "value": "*",
+        "files": [
+          "docs/mockups/index.html"
+        ],
+        "createdAt": "2026-10-10T01:17:31.117Z",
+        "reason": "Claude: cards dentro de molduras de celular são a apresentação do mockup, não hierarquia real de UI"
+      },
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          "docs/mockups/index.html"
+        ],
+        "createdAt": "2026-10-10T01:25:16.582Z",
+        "reason": "Claude: pista de notas do arcade e grade de amp no rodapé são decoração encostada na borda de propósito"
+      },
+      {
+        "rule": "tight-leading",
+        "value": "*",
+        "files": [
+          "docs/mockups/index.html"
+        ],
+        "createdAt": "2026-10-10T01:25:23.277Z",
+        "reason": "Claude: tablatura em monospace precisa das linhas coladas para as cordas alinharem"
+      },
+      {
+        "rule": "dark-glow",
+        "value": "*",
+        "files": [
+          "docs/mockups/backing.html"
+        ],
+        "createdAt": "2026-10-18T15:24:38.966Z",
+        "reason": "CLAUDE.md do projeto: item ativo marcado por 'luz piloto' âmbar com brilho; glow só nas luzes piloto/tempos"
+      },
+      {
+        "rule": "dark-glow",
+        "value": "*",
+        "files": [
+          "docs/mockups/landing.html"
+        ],
+        "createdAt": "2026-10-18T16:11:26.204Z",
+        "reason": "CLAUDE.md do projeto: luz piloto âmbar; brilho só nas luzes piloto, LEDs dos tempos e LEDs dos pedais"
+      },
+      {
+        "rule": "tight-leading",
+        "value": "*",
+        "files": [
+          "docs/mockups/landing.html"
+        ],
+        "createdAt": "2026-10-18T16:12:31.709Z",
+        "reason": "Claude: line-height 1.05 só nos títulos de display (.h); corpo usa 1.5"
+      },
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": [
+          "docs/mockups/landing.html"
+        ],
+        "createdAt": "2026-10-18T16:12:32.002Z",
+        "reason": "Claude: faixa de 4px no TOPO dos cards de pedal = cor de categoria do design system (CLAUDE.md: pedais por categoria), não borda lateral"
+      }
+    ]
+  }
+}
