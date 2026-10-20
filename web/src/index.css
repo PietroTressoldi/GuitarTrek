@@ -46,6 +46,14 @@
   --cat-ritmo: #e85d9e;
   --cat-teoria: #4c7df0;
   --cat-foreground: #23211d;      /* texto em cima de um pedal */
+
+  /* Cores das notas */
+  --grau-3: #4fd1c5;              /* a terça: a nota que diz maior ou menor */
+  --grau-7: #c792ea;              /* a sétima: a cor do acorde */
+  --tensao: #ff6b6b;              /* meio tom acima de uma nota do acorde */
+  --funcao-t: #7bd88f;            /* tônica: repouso */
+  --funcao-s: #6c9cf0;            /* subdominante: afasta */
+  --funcao-d: #f0715a;            /* dominante: tensão que pede a volta */
 }
 
 /* Tema "treino" (direção C: claro e atlético) — exemplo de troca */
@@ -78,6 +86,13 @@
   --cat-ritmo: #e8467c;
   --cat-teoria: #4d3df5;
   --cat-foreground: #ffffff;
+
+  --grau-3: #0f8f84;
+  --grau-7: #8a4fd1;
+  --tensao: #d93636;
+  --funcao-t: #1f9d55;
+  --funcao-s: #3060d0;
+  --funcao-d: #d9542b;
 }
 
 /* Liga os tokens às classes do Tailwind (bg-primary, text-cat-ritmo, font-heading...) */
@@ -109,6 +124,12 @@
   --color-cat-ritmo: var(--cat-ritmo);
   --color-cat-teoria: var(--cat-teoria);
   --color-cat-foreground: var(--cat-foreground);
+  --color-grau-3: var(--grau-3);
+  --color-grau-7: var(--grau-7);
+  --color-tensao: var(--tensao);
+  --color-funcao-t: var(--funcao-t);
+  --color-funcao-s: var(--funcao-s);
+  --color-funcao-d: var(--funcao-d);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);

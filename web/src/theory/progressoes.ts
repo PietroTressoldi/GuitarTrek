@@ -47,3 +47,13 @@ export function formaPerto(raiz: Nota, tipo: TipoAcorde, perto: string[]): strin
     const desenhos = (Object.keys(FORMAS) as Forma[]).map((f) => voicing(raiz, tipo, f))
     return desenhos.sort((a, b) => Math.abs(centro(a) - alvo) - Math.abs(centro(b) - alvo))[0]
 }
+
+// Função harmônica: T = tônica (repouso), S = subdominante (afasta), D = dominante (tensão que pede a volta)
+export type Funcao = 'T' | 'S' | 'D'
+
+const FUNCOES: Record<string, Funcao> = { I: 'T', II: 'S', III: 'T', IV: 'S', V: 'D', VI: 'T', VII: 'D' }
+
+export function funcao(grau: string): Funcao {
+    const [, bemol, numeral] = grau.match(/^(b?)([IViv]+)/)!
+    return bemol ? 'S' : FUNCOES[numeral.toUpperCase()] // bVI e bVII: emprestados do menor, soam como subdominante
+}

@@ -104,3 +104,18 @@ export function voicing(raiz: Nota, tipo: TipoAcorde, forma: Forma): string[] {
     if (casaRaiz + Math.min(...casas.map((d) => d ?? 0)) < 0) casaRaiz += 12
     return casas.flatMap((d, c) => (d === null ? [] : [`${c}-${casaRaiz + d}`]))
 }
+
+// O papel de uma nota no acorde: 1, 3, 5 ou 7 se for do acorde; 'tensao' se estiver
+// meio tom acima de uma nota do acorde (soa errada se você parar nela); senão, só 'escala'
+export type Papel = '1' | '3' | '5' | '7' | 'tensao' | 'escala'
+
+const PAPEIS = ['1', '3', '5', '7'] as const
+
+export function papel(raiz: Nota, tipo: TipoAcorde, nota: Nota): Papel {
+    const intervalos = ACORDES[tipo]
+    const d = distancia(raiz, nota)
+    const i = intervalos.indexOf(d)
+    if (i >= 0) return PAPEIS[i]
+    if (intervalos.some((intervalo) => (intervalo + 1) % 12 === d)) return 'tensao'
+    return 'escala'
+}

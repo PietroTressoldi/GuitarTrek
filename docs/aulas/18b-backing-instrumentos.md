@@ -7,7 +7,9 @@ Até agora a backing era só uma bateria eletrônica. Nesta aula ela vira uma ba
 - **instrumentos gravados de verdade**, com opções em cada canal (bateria acústica ou eletrônica; baixo de dedo, de palheta, fretless ou acústico; piano de cauda, piano elétrico ou órgão);
 - cada estilo já vem com o som que combina com ele: a Bossa com contrabaixo acústico e piano, o Rock com baixo de palheta e órgão;
 - o **swing** do blues e dois estilos novos (**Shuffle** e **Bossa**);
-- um toque **humano** (ninguém toca exatamente no tempo), reverb e um **mixer** com timbre, volume e mudo por canal.
+- um toque **humano** (ninguém toca exatamente no tempo), reverb e um **mixer** com timbre, volume e mudo por canal;
+- uma bateria que **muda ao longo da música**: viradas, pratos e seções de verso e refrão;
+- **cores por papel** no braço (1, 3, 5, 7 e tensão), também nos tracejados do próximo acorde, e a **função** de cada acorde (tônica, subdominante, dominante).
 
 ![a Backing com o mixer](img/18b-mixer.png)
 
@@ -21,6 +23,8 @@ Até agora a backing era só uma bateria eletrônica. Nesta aula ela vira uma ba
 5. `Math.random()` para humanizar
 6. `<input type="range">`, o slider nativo do navegador
 7. Chave calculada num objeto: `{ [canal]: ... }`
+8. `Set`, a coleção sem repetição
+9. Teoria: o **papel** de cada nota no acorde e a **função** de cada acorde na progressão
 
 > 📦 Nada para instalar. Tudo vem do `smplr` que você já tem. Os sons baixam da internet na primeira vez, como a bateria da 18a.
 
@@ -865,6 +869,673 @@ Depois do `</div>` que fecha a grade (logo após o `})}` do `compassos.map`), ve
 
 ---
 
+## Parte 6 — A bateria ganha vida: viradas, pratos e verso/refrão
+
+Até aqui, a bateria toca **o mesmo compasso** do começo ao fim. Um baterista de verdade não faz isso: ele avisa que a volta vai recomeçar, abre o som no refrão e marca o começo das partes com um prato. É isso que esta parte ensina a bateria a fazer:
+
+| O quê | Onde | Como soa |
+|---|---|---|
+| **Virada** | último compasso de cada seção | nos 2 últimos tempos, a caixa toca semicolcheias e desce pelos tons até o surdo. O groove para para dar espaço. |
+| **Mini-virada** | fim de cada frase de 4 compassos | só o último tempo, na caixa: um "pá-pá-pá" curto |
+| **Prato de ataque** | tempo 1 de cada seção; no refrão, também no começo de cada frase | o "tchhh" que marca "começou outra parte" |
+| **Verso e refrão** | as seções se alternam | no refrão, a bateria **abre**: o chimbal fechado vira prato de condução (ride), ou o chimbal abre |
+
+Uma **seção** tem pelo menos 8 compassos. O blues de 12 usa os 12 dele, e as progressões de 2 ou 4 compassos repetem até completar 8. Sem isso, num vamp de 2 compassos, a virada viria a cada 2 compassos e o verso e o refrão trocariam a todo momento.
+
+### Passo 6.1 — As peças novas no kit
+
+A virada usa **3 tons** e o refrão usa o **prato de ataque**. Em `web/src/backing/timbres.ts`, acrescente 4 peças em **cada** kit, depois da linha do `ride`. Na bateria acústica:
+
+```ts
+                    crash: ['h2ogmcy/Crash-Hard', 'h2ogmcy/Crash-Soft'],
+                    tom1: ['h2ogmht/Tom1-Hard', 'h2ogmht/Tom1-Soft'],
+                    tom2: ['h2ogmmt/Tom2-Hard', 'h2ogmmt/Tom2-Soft'],
+                    tom3: ['h2ogmft/TomFloor-Hard', 'h2ogmft/TomFloor-Soft'],
+```
+
+E na LM-2:
+
+```ts
+                    crash: ['crash', 'crash'],
+                    tom1: ['tom-h', 'tom-h'],
+                    tom2: ['tom-m', 'tom-m'],
+                    tom3: ['tom-l', 'tom-l'],
+```
+
+O `tom1` é o tom mais agudo (pendurado no bumbo), o `tom2` o do meio e o `tom3` o **surdo**, o tom grande do chão. A virada desce do 1 para o 3, do agudo para o grave.
+
+### Passo 6.2 — O refrão de cada estilo
+
+Em `web/src/backing/estilos.ts`, três mudanças. Primeiro, as peças novas no tipo, que agora tem `export` porque outro arquivo vai usar:
+
+```ts
+export type PecaBateria = 'kick' | 'snare' | 'hhclosed' | 'hhopen' | 'stick' | 'ride' | 'crash' | 'tom1' | 'tom2' | 'tom3'
+```
+
+O `type Estilo` também ganha `export` e um campo novo, embaixo do `bateria`:
+
+```ts
+export type Estilo = {
+    nome: string
+    swing: number
+    bateria: Partial<Record<PecaBateria, string>>
+    refrao: Partial<Record<PecaBateria, string>> // o que muda na bateria quando a volta é de refrão
+    baixo: string
+    teclado: string
+    timbres: Timbres // o som que combina com o estilo; dá para trocar no mixer
+}
+```
+
+E cada estilo ganha o seu `refrao`, logo depois do `bateria: { ... },`. O refrão **não** repete a bateria inteira: ele diz só **o que muda**. Uma peça com `'................'` (16 pontos) **some** no refrão.
+
+| Estilo | Linha para acrescentar | O que muda |
+|---|---|---|
+| `rock` | `refrao: { hhclosed: '................', hhopen: '................', ride: 'X.x.X.x.X.x.X.x.', kick: 'X.X.....X.X.....' },` | chimbal sai, entra o ride; o bumbo dobra |
+| `pop` | `refrao: { hhclosed: '................', ride: 'X.x.X.x.X.x.X.x.', snare: '....X.......X..x' },` | ride no lugar do chimbal e uma caixa a mais no fim |
+| `funk` | `refrao: { hhclosed: 'XxXxXx.xXxXxXx.x', hhopen: '......x.......x.' },` | o chimbal **abre** nos contratempos (e fecha um passo antes, para não tocar fechado e aberto juntos) |
+| `balada` | `refrao: { stick: '................', ride: '................', snare: '....X.......X...', hhclosed: 'x.x.x.x.x.x.x.x.' },` | sai o aro e o ride, entram a caixa cheia e o chimbal: o "refrão que explode" da balada |
+| `shuffle` | `refrao: { hhclosed: '................', ride: 'X.x.X.x.X.x.X.x.' },` | ride no lugar do chimbal |
+| `bossa` | `refrao: { hhclosed: '................', ride: 'x.x.x.x.x.x.x.x.' },` | um ride suave no lugar do chimbal |
+
+> 💡 O TypeScript ajuda: se você esquecer o `refrao` de algum estilo, o `satisfies Record<string, Estilo>` reclama, porque o campo agora é obrigatório.
+
+### Passo 6.3 — `web/src/backing/bateria.ts`
+
+A regra de "o que a bateria toca em cada compasso" é uma **função pura**: recebe o estilo e a posição na música, e devolve os padrões do compasso. Assim dá para testar sem tocar som nenhum. Crie o arquivo:
+
+```ts
+import type { Estilo, PecaBateria } from './estilos'
+
+type Padroes = Partial<Record<PecaBateria, string>>
+
+// Uma virada toma o fim do compasso: de `desde` até o passo 15, só ela toca
+type Virada = { desde: number; pecas: Padroes }
+
+// No fim da volta: 2 tempos de caixa descendo pelos tons, até o surdo
+const VIRADA: Virada = {
+    desde: 8,
+    pecas: { kick: 'X.......', snare: 'XxXx....', tom1: '....Xx..', tom2: '......X.', tom3: '.......X' },
+}
+
+// No fim de cada frase de 4 compassos: só o último tempo, na caixa
+const MINI: Virada = { desde: 12, pecas: { snare: 'X.XX' } }
+
+const SILENCIO = '................'
+
+function encaixar(padroes: Padroes, virada: Virada): Padroes {
+    const resultado: Padroes = {}
+    for (const peca of new Set([...Object.keys(padroes), ...Object.keys(virada.pecas)]) as Set<PecaBateria>) {
+        const antes = (padroes[peca] ?? SILENCIO).slice(0, virada.desde)
+        const depois = virada.pecas[peca] ?? SILENCIO.slice(virada.desde)
+        resultado[peca] = antes + depois
+    }
+    return resultado
+}
+
+// Uma seção tem pelo menos 8 compassos: uma progressão de 2 ou 4 repete até completar
+export function tamanhoDaSecao(compassos: number): number {
+    return Math.ceil(8 / compassos) * compassos
+}
+
+// O que a bateria toca num compasso da seção. As seções se alternam: verso (par) e refrão (ímpar).
+export function bateriaDoCompasso(estilo: Estilo, compasso: number, tamanho: number, secao: number): Padroes {
+    const refrao = secao % 2 === 1
+    let padroes: Padroes = { ...estilo.bateria, ...(refrao ? estilo.refrao : {}) }
+
+    if (compasso === tamanho - 1) padroes = encaixar(padroes, VIRADA)
+    else if (compasso % 4 === 3) padroes = encaixar(padroes, MINI)
+
+    // Prato de ataque no 1 de cada seção e, no refrão, no começo de cada frase
+    if (compasso === 0 || (refrao && compasso % 4 === 0)) {
+        padroes.crash = 'X' + (padroes.crash ?? SILENCIO).slice(1)
+    }
+    return padroes
+}
+```
+
+| Código | O que significa |
+|---|---|
+| `Virada = { desde, pecas }` | Uma virada também é **dado**: a partir de qual passo ela toma conta e o que cada peça toca daí em diante. A `VIRADA` começa no passo 8 (tempo 3) e tem 8 caracteres por peça; a `MINI` começa no 12 (tempo 4) e tem 4. |
+| `'XxXx....'` na caixa | Semicolcheias forte-fraco-forte-fraco no tempo 3. Depois `tom1` (`'....Xx..'`), `tom2` e `tom3`, uma nota cada: a caixa "desce a escada" até o surdo. |
+| `kick: 'X.......'` | O bumbo marca o tempo 3 junto com o começo da virada. Sem ele, a virada fica "solta no ar". |
+| `{ ...estilo.bateria, ...(refrao ? estilo.refrao : {}) }` | O **espalhar** de sempre: a bateria do verso, e **por cima** o que o refrão muda. Peças que o refrão não cita ficam como no verso. Espalhar um `{}` não muda nada. |
+| `new Set([...a, ...b])` | Um **`Set`** é uma coleção sem repetição, o `HashSet<T>` do C#. Aqui junta as peças do groove com as da virada, e cada uma aparece uma vez só. |
+| `as Set<PecaBateria>` | O `Object.keys` devolve `string[]`, e o cast diz que são peças de bateria, como o `as NomeEscala[]` que você já usa. |
+| `.slice(0, virada.desde)` + virada | O compasso é **costurado**: o começo do groove normal mais o fim da virada. Uma peça que a virada não cita (o chimbal, por exemplo) recebe silêncio no fim: o groove para e a virada aparece. |
+| `Math.ceil(8 / compassos) * compassos` | O `Math.Ceiling` do C#: arredonda para cima. Com 2 compassos: `ceil(4) * 2 = 8`. Com 12: `ceil(0,67) * 12 = 12`. A seção sempre termina no fim de uma volta da progressão. |
+| `if ... else if` | Último compasso da seção = virada grande. Senão, fim de frase (compasso 3, 7, 11...) = mini. Nunca as duas. |
+| `'X' + (... ?? SILENCIO).slice(1)` | Troca **só o 1º caractere** do prato por `X`. Uma string não pode ser mudada no lugar (como no C#), então monta-se outra. |
+
+### Passo 6.4 — Testes
+
+Crie `web/src/backing/tests/bateria.test.ts`:
+
+```ts
+import { describe, it, expect } from 'vitest'
+import { bateriaDoCompasso, tamanhoDaSecao } from '../bateria'
+import { ESTILOS } from '../estilos'
+
+const rock = ESTILOS.rock
+
+describe('bateria que muda ao longo da música', () => {
+    it('a seção tem pelo menos 8 compassos', () => {
+        expect(tamanhoDaSecao(12)).toBe(12)
+        expect(tamanhoDaSecao(4)).toBe(8)
+        expect(tamanhoDaSecao(2)).toBe(8)
+    })
+    it('no meio da frase, toca o groove normal', () => {
+        expect(bateriaDoCompasso(rock, 1, 12, 0)).toEqual(rock.bateria)
+    })
+    it('o 1º compasso da seção começa com prato', () => {
+        expect(bateriaDoCompasso(rock, 0, 12, 0).crash?.[0]).toBe('X')
+    })
+    it('o último compasso tem a virada nos tons, e o groove some no fim', () => {
+        const ultimo = bateriaDoCompasso(rock, 11, 12, 0)
+        expect(ultimo.tom3).toBe('...............X')
+        expect(ultimo.hhclosed?.slice(8)).toBe('........')
+        expect(ultimo.kick?.slice(0, 8)).toBe(rock.bateria.kick.slice(0, 8))
+    })
+    it('no fim de cada frase de 4, uma mini-virada só no último tempo', () => {
+        expect(bateriaDoCompasso(rock, 3, 12, 0).snare?.slice(12)).toBe('X.XX')
+    })
+    it('a 2ª seção é o refrão: troca o chimbal pelo prato de condução', () => {
+        const refrao = bateriaDoCompasso(rock, 1, 12, 1)
+        expect(refrao.ride).toBe(rock.refrao.ride)
+        expect(refrao.hhclosed).toBe('................')
+    })
+    it('todo padrão, depois de virada e prato, continua com 16 passos', () => {
+        for (const estilo of Object.values(ESTILOS)) {
+            for (let compasso = 0; compasso < 12; compasso++) {
+                for (const padrao of Object.values(bateriaDoCompasso(estilo, compasso, 12, compasso % 2))) {
+                    expect(padrao).toMatch(/^[Xx.]{16}$/)
+                }
+            }
+        }
+    })
+})
+```
+
+O último teste é a **rede de segurança**: ele passa por todos os estilos, compassos e seções. Se uma virada tiver 7 caracteres em vez de 8, a costura do `encaixar` dá um compasso de 15 passos, e ele pega.
+
+| Código | O que significa |
+|---|---|
+| `crash?.[0]` | O `?.` funciona com colchetes também: "se `crash` existir, pegue o caractere 0". |
+| `.toEqual(rock.bateria)` | No meio da frase, a função não pode mexer em nada: o resultado é **igual** ao groove original. |
+
+**✅ O que você deve ver:** **49 testes passando**.
+
+### Passo 6.5 — O hook usa a função
+
+Em `web/src/hooks/useBacking.ts`, o import:
+
+```ts
+import { bateriaDoCompasso, tamanhoDaSecao } from '@/backing/bateria'
+```
+
+Um estado para a tela saber se é verso ou refrão, embaixo do `tempoAtual`:
+
+```ts
+    const [refrao, setRefrao] = useState(false)
+```
+
+No efeito de tocar, embaixo do `let compasso = 0`:
+
+```ts
+        let total = 0 // compassos tocados desde o play: dá a seção (verso ou refrão) e a posição dentro dela
+```
+
+O `compasso` dá a volta na progressão (0 a 11 no blues), e por isso não serve para saber em que **seção** você está. O `total` só cresce.
+
+Dentro do `if (passo % 4 === 0)`, o aviso para a tela ganha o refrão:
+
+```ts
+                    const esteCompasso = compasso
+                    const esteTempo = passo / 4
+                    const esteRefrao = Math.floor(total / tamanhoDaSecao(graus.length)) % 2 === 1
+                    const atraso = (proximoPasso - ctx.currentTime) * 1000
+                    timeouts.push(
+                        window.setTimeout(() => {
+                            setCompassoAtual(esteCompasso)
+                            setTempoAtual(esteTempo)
+                            setRefrao(esteRefrao)
+                        }, atraso),
+                    )
+```
+
+O `for` da bateria passa a ler os padrões **do compasso**, e não os do estilo direto:
+
+```ts
+                const secao = tamanhoDaSecao(graus.length)
+                const bateria = bateriaDoCompasso(e, total % secao, secao, Math.floor(total / secao))
+                for (const [peca, padrao] of Object.entries(bateria)) {
+```
+
+| Código | O que significa |
+|---|---|
+| `total % secao` | A posição **dentro** da seção: no blues, de 0 a 11; num vamp de 2 compassos, de 0 a 7. |
+| `Math.floor(total / secao)` | **Qual** seção: 0, 1, 2... É a divisão inteira do C# (`total / secao` com `int`). Par = verso, ímpar = refrão. |
+
+No fim do `while`, o `total` cresce junto com o `compasso`:
+
+```ts
+                if (passo === 0) {
+                    compasso = (compasso + 1) % graus.length
+                    total++
+                }
+```
+
+Na limpeza, junto do `setTempoAtual(-1)`:
+
+```ts
+            setRefrao(false)
+```
+
+E o `refrao` entra no `return`, depois do `tempoAtual`.
+
+### Passo 6.6 — Verso ou refrão na tela
+
+No `Backing.tsx`, no cartão "Agora", troque o `<span>` do "Agora · compasso..." por uma linha com o selo do lado:
+
+```tsx
+                    <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
+                        <span>Agora · compasso {indice + 1} de {compassos.length}</span>
+                        {b.tocando && (
+                            <span className={`flex items-center gap-1.5 rounded bg-secondary px-2 py-0.5 ${b.refrao ? 'text-foreground' : ''}`}>
+                                {b.refrao && <span className="size-1.5 rounded-full bg-primary shadow-[0_0_6px_var(--primary)]" />}
+                                {b.refrao ? 'Refrão' : 'Verso'}
+                            </span>
+                        )}
+                    </div>
+```
+
+No refrão, o selo acende a **luz piloto**, o mesmo sinal de "ativo" do resto do app. Fundo âmbar cheio, não: é a regra do design.
+
+**✅ O que você deve ver:** toque o blues no Rock e conte:
+- compasso 1: **prato**;
+- fim do compasso 4 e do 8: a **mini-virada** na caixa;
+- compasso 12: a **virada** descendo pelos tons, e o selo passa a **Refrão**;
+- no refrão: o **ride** no lugar do chimbal e um prato a cada 4 compassos;
+- 12 compassos depois, a virada de novo e volta o **Verso**.
+
+Num vamp de 2 compassos (Vamp dórico), o refrão só entra depois de 8.
+
+---
+
+## Parte 7 — Cada nota com a cor do seu papel
+
+### O conceito
+
+No blues em Lá, a escala é a mesma o tempo todo, mas o acorde muda, e com ele o **papel** de cada nota. O G é a 7ª do A7, a "cor" do acorde. Sobre o D7, ele fica **meio tom acima do F#**, a terça do D7, e briga com ela se você parar nele. Mesma nota, outro papel.
+
+O braço vai pintar cada nota com o papel que ela tem **no acorde que está tocando**:
+
+| Cor | Papel | No improviso |
+|---|---|---|
+| âmbar | **1**, a tônica do acorde | repouso |
+| verde-água | **3** | diz se o acorde é maior ou menor; o melhor lugar para terminar uma frase |
+| branco | **5** | neutra, sempre segura |
+| roxo | **7** | a "cor" do acorde |
+| contorno vermelho | **tensão** | meio tom acima de uma nota do acorde: passe por ela, não pare nela |
+| contorno apagado | resto da escala | notas de passagem |
+
+E cada **acorde** também tem um papel na progressão, a **função harmônica**:
+
+| Função | Graus | Sensação |
+|---|---|---|
+| **T**, tônica | I, iii, vi | repouso, "em casa" |
+| **S**, subdominante | ii, IV (e o bVI, bVII emprestados do menor) | se afasta de casa |
+| **D**, dominante | V, vii | tensão que pede a volta para o I |
+
+O blues é **T S T T S S T T D S T D**: dá para "ler" a música inteira por essas letras.
+
+### Passo 7.1 — Os tokens de cor
+
+As cores novas viram **tokens**, como todas as outras do app. Em `web/src/index.css`, no tema `amp`, depois da linha do `--cat-foreground`:
+
+```css
+  --grau-3: #4fd1c5;              /* a terça: a nota que diz maior ou menor */
+  --grau-7: #c792ea;              /* a sétima: a cor do acorde */
+  --tensao: #ff6b6b;              /* meio tom acima de uma nota do acorde */
+  --funcao-t: #7bd88f;            /* tônica: repouso */
+  --funcao-s: #6c9cf0;            /* subdominante: afasta */
+  --funcao-d: #f0715a;            /* dominante: tensão que pede a volta */
+```
+
+No tema `treino` (o claro), também depois do `--cat-foreground`, versões mais escuras, que aparecem em fundo branco:
+
+```css
+  --grau-3: #0f8f84;
+  --grau-7: #8a4fd1;
+  --tensao: #d93636;
+  --funcao-t: #1f9d55;
+  --funcao-s: #3060d0;
+  --funcao-d: #d9542b;
+```
+
+E no `@theme inline`, depois do `--color-cat-foreground`, a ponte para as classes do Tailwind (`fill-grau-3`, `text-funcao-d`...):
+
+```css
+  --color-grau-3: var(--grau-3);
+  --color-grau-7: var(--grau-7);
+  --color-tensao: var(--tensao);
+  --color-funcao-t: var(--funcao-t);
+  --color-funcao-s: var(--funcao-s);
+  --color-funcao-d: var(--funcao-d);
+```
+
+A tônica não ganha token novo: ela continua no `primary`, o âmbar do app. A quinta usa o `foreground`, a cor do texto.
+
+### Passo 7.2 — O papel da nota: `web/src/theory/acordes.ts`
+
+No **fim** do arquivo:
+
+```ts
+// O papel de uma nota no acorde: 1, 3, 5 ou 7 se for do acorde; 'tensao' se estiver
+// meio tom acima de uma nota do acorde (soa errada se você parar nela); senão, só 'escala'
+export type Papel = '1' | '3' | '5' | '7' | 'tensao' | 'escala'
+
+const PAPEIS = ['1', '3', '5', '7'] as const
+
+export function papel(raiz: Nota, tipo: TipoAcorde, nota: Nota): Papel {
+    const intervalos = ACORDES[tipo]
+    const d = distancia(raiz, nota)
+    const i = intervalos.indexOf(d)
+    if (i >= 0) return PAPEIS[i]
+    if (intervalos.some((intervalo) => (intervalo + 1) % 12 === d)) return 'tensao'
+    return 'escala'
+}
+```
+
+| Código | O que significa |
+|---|---|
+| `intervalos.indexOf(d)` | Em que **posição** do acorde está a distância da nota até a raiz. No A7 (`[0, 4, 7, 10]`), o C# está a 4 semitons: posição 1, papel `'3'`. `-1` = não é do acorde. É o `IndexOf` do C#. |
+| `PAPEIS[i]` | A posição vira o nome: 0 → `'1'`, 1 → `'3'`, 2 → `'5'`, 3 → `'7'`. |
+| `intervalos.some(...)` | "Algum intervalo do acorde, **mais 1 semitom**, cai nesta nota?" É o `Any()` do LINQ. No D7, o F# está no intervalo 4; o G está em 5 = 4 + 1: tensão. |
+| `% 12` | Para dar a volta na oitava: meio tom acima do 11 (a 7ª maior) é o 0. |
+
+### Passo 7.3 — A função do grau: `web/src/theory/progressoes.ts`
+
+Embaixo do `export type NomeProgressao`:
+
+```ts
+// Função harmônica: T = tônica (repouso), S = subdominante (afasta), D = dominante (tensão que pede a volta)
+export type Funcao = 'T' | 'S' | 'D'
+
+const FUNCOES: Record<string, Funcao> = { I: 'T', II: 'S', III: 'T', IV: 'S', V: 'D', VI: 'T', VII: 'D' }
+
+export function funcao(grau: string): Funcao {
+    const [, bemol, numeral] = grau.match(/^(b?)([IViv]+)/)!
+    return bemol ? 'S' : FUNCOES[numeral.toUpperCase()] // bVI e bVII: emprestados do menor, soam como subdominante
+}
+```
+
+A mesma regex do `acordeDoGrau` (aula 18a), sem o sufixo. O `!` no fim do `match` é o **"confie em mim, não é `null`"** do TypeScript: todo grau das progressões casa com a regex. É o `!` do C# para nullable.
+
+### Passo 7.4 — Testes
+
+No **topo** de `web/src/theory/tests/teoria.test.ts`, o import do `acordes` ganha o `papel`, e entra um import novo:
+
+```ts
+import { ACORDES, FORMAS, notasDoAcorde, papel, voicing, type Forma, type TipoAcorde } from '../acordes'
+import { funcao } from '../progressoes'
+```
+
+E no **fim** do arquivo:
+
+```ts
+describe('papel da nota no acorde', () => {
+    it('A7: A é 1, C# é 3, E é 5, G é 7', () => {
+        expect(['A', 'C#', 'E', 'G'].map((n) => papel('A', 'dom7', n as 'A'))).toEqual(['1', '3', '5', '7'])
+    })
+    it('no D7, o G (meio tom acima do F#) é tensão; o E é só escala', () => {
+        expect(papel('D', 'dom7', 'G')).toBe('tensao')
+        expect(papel('D', 'dom7', 'E')).toBe('escala')
+    })
+    it('no E7, o C (meio tom acima do B) é tensão', () => {
+        expect(papel('E', 'dom7', 'C')).toBe('tensao')
+    })
+})
+
+describe('função do grau', () => {
+    it('I tônica, IV subdominante, V dominante', () => {
+        expect(['I7', 'IV7', 'V7', 'vi', 'ii7', 'bVII'].map(funcao)).toEqual(['T', 'S', 'D', 'T', 'S', 'S'])
+    })
+})
+```
+
+O `n as 'A'` é um atalho: o array é de `string`, e o `papel` quer uma `Nota`. Qualquer nota serviria no cast.
+
+**✅ O que você deve ver:** **53 testes passando**.
+
+### Passo 7.5 — O `<Fretboard>` pinta por papel
+
+Em `web/src/components/Fretboard.tsx`, o import:
+
+```tsx
+import { papel, type Papel, type TipoAcorde } from '@/theory/acordes'
+```
+
+Troque a função `cores` inteira por:
+
+```tsx
+// A cor de cada papel: [preenchimento quando é do desenho, traço, texto quando é só contorno]
+const COR_PAPEL: Record<Papel, [string, string, string]> = {
+    '1': ['fill-primary', 'stroke-primary', 'fill-primary'],
+    '3': ['fill-grau-3', 'stroke-grau-3', 'fill-grau-3'],
+    '5': ['fill-foreground', 'stroke-foreground', 'fill-foreground'],
+    '7': ['fill-grau-7', 'stroke-grau-7', 'fill-grau-7'],
+    tensao: ['fill-card', 'stroke-tensao', 'fill-tensao'],
+    escala: ['fill-card', 'stroke-cat-escalas', 'fill-foreground'],
+}
+
+// [cor do círculo, cor do texto]. Sem acorde na tela, só a tônica muda de cor.
+function cores(ehTonica: boolean, doAcorde: boolean, p: Papel | null): [string, string] {
+    if (!p) return ehTonica ? ['fill-primary stroke-primary', 'fill-primary-foreground'] : ['fill-card stroke-cat-escalas', 'fill-foreground']
+    const [cheio, traco, texto] = COR_PAPEL[p]
+    if (doAcorde) return [`${cheio} ${traco}`, p === '1' ? 'fill-primary-foreground' : 'fill-background']
+    return [`fill-card ${traco}`, texto]
+}
+
+type Acorde = { raiz: Nota; tipo: TipoAcorde }
+```
+
+| Código | O que significa |
+|---|---|
+| `Record<Papel, [string, string, string]>` | Para cada papel, uma tupla de 3 classes. O `Record<Papel, ...>` obriga a ter **todos** os 6 papéis. |
+| As classes escritas inteiras | O Tailwind só gera as classes que ele **lê** no código (Passo 4.6 da 18c). Por isso `'fill-grau-3'` está escrito por extenso, e não montado como `` `fill-${cor}` ``. |
+| `!p` | Sem acorde (nas páginas Escalas e Acordes), o braço fica **igual a antes**: tônica âmbar e o resto com o contorno da escala. |
+| `doAcorde` | Nota do **desenho** do acorde: bolinha **cheia** na cor do papel. Fora do desenho, só o **contorno** na cor. |
+
+No `type Props`, depois do `chegada?: number`:
+
+```tsx
+    acorde?: Acorde // o acorde que está tocando: as notas ganham a cor do papel delas nele
+    proximoAcorde?: Acorde // o próximo: os tracejados ganham a cor do papel no próximo
+```
+
+Na assinatura, depois do `chegada = 0`:
+
+```tsx
+export function Fretboard({ tonica, notas, mostrar = 'nota', alvos = [], destaque = [], desenhos = [], proximo = [], chegada = 0, acorde: acordeAtual, proximoAcorde }: Props) {
+```
+
+O `acorde: acordeAtual` **renomeia** a prop na desestruturação, porque dentro do componente já existe uma variável `acorde` (o `desenhos.flat()` da 05e). É o mesmo que `const acordeAtual = props.acorde`.
+
+Nos **tracejados**, dentro do `proximo.map`, depois do `const [corda, casa] = ...`:
+
+```tsx
+                    const p = proximoAcorde ? papel(proximoAcorde.raiz, proximoAcorde.tipo, notaNaCasa(corda, casa)) : null
+```
+
+E no `<circle>` do tracejado, troque o `strokeWidth` e o `className`:
+
+```tsx
+                            strokeWidth={2}
+                            strokeDasharray="4 3"
+                            className={p ? COR_PAPEL[p][1] : 'stroke-muted-foreground'}
+```
+
+O `[1]` pega o **traço** da tupla. Um anel verde-água no fim do A7 quer dizer "aqui vai estar a **3** do próximo acorde".
+
+Nas **notas**, troque as linhas do `soEscala` e do `cores(...)`:
+
+```tsx
+                        const p = comAcorde && acordeAtual ? papel(acordeAtual.raiz, acordeAtual.tipo, nota) : null
+                        const soEscala = comAcorde && !doAcorde
+                        // fora do desenho: notas do acorde e tensões ficam visíveis, o resto da escala apaga
+                        const opacidade = apagada ? 0.1 : !soEscala ? 1 : p === 'escala' || !p ? 0.55 : 0.85
+                        const [corCirculo, corTexto] = cores(ehTonica, doAcorde, p)
+```
+
+E no `animate` do `<motion.g>`:
+
+```tsx
+                                animate={{ scale: 1, opacity: opacidade }}
+```
+
+A opacidade é uma **hierarquia**: o desenho do acorde em 100%, as notas do acorde e as tensões fora dele em 85% (você precisa enxergar onde estão), o resto da escala em 55%, e o que está fora da região em 10%.
+
+### Passo 7.6 — A legenda vira componente
+
+A legenda das cores aparece em duas páginas (Backing e Escala + Acorde), e só o último item muda. Crie `web/src/components/LegendaPapeis.tsx`:
+
+```tsx
+import type { ReactNode } from 'react'
+
+const PAPEIS = [
+    { cor: 'bg-primary', nome: '1 · tônica do acorde' },
+    { cor: 'bg-grau-3', nome: '3 · diz se é maior ou menor' },
+    { cor: 'bg-foreground', nome: '5' },
+    { cor: 'bg-grau-7', nome: '7 · a cor do acorde' },
+]
+
+// A legenda das cores do braço quando tem um acorde na tela. `extra` = um item a mais no fim.
+export function LegendaPapeis({ extra }: { extra?: ReactNode }) {
+    return (
+        <div className="flex flex-wrap gap-x-6 gap-y-2 text-xs text-muted-foreground">
+            {PAPEIS.map((p) => (
+                <span key={p.nome} className="flex items-center gap-2">
+                    <span className={`size-3.5 rounded-full ${p.cor}`} /> {p.nome}
+                </span>
+            ))}
+            <span className="flex items-center gap-2">
+                <span className="size-3 rounded-full border-2 border-tensao" /> Tensão: não pare nela
+            </span>
+            <span className="flex items-center gap-2">
+                <span className="size-3 rounded-full border-2 border-cat-escalas opacity-60" /> Resto da escala
+            </span>
+            {extra && <span className="flex items-center gap-2">{extra}</span>}
+        </div>
+    )
+}
+```
+
+| Código | O que significa |
+|---|---|
+| `ReactNode` | O tipo de "qualquer coisa que dá para desenhar": texto, um elemento ou vários. Uma prop pode receber **JSX**. |
+| `extra?: ReactNode` | Opcional: sem `extra`, a legenda só mostra os papéis. |
+| `{extra && ...}` | O `&&` de sempre: só desenha o último item se ele veio. |
+
+### Passo 7.7 — A Backing usa tudo
+
+No `Backing.tsx`, os imports:
+
+```tsx
+import { acordeDoGrau, formaPerto, funcao, PROGRESSOES, type Funcao, type NomeProgressao } from '@/theory/progressoes'
+import { LegendaPapeis } from '@/components/LegendaPapeis'
+```
+
+(Se o seu `formaPerto` estiver no `acordes.ts`, ele continua vindo de lá.)
+
+Em cima, junto das outras constantes:
+
+```tsx
+// T = tônica (repouso), S = subdominante (afasta), D = dominante (pede a volta)
+const COR_FUNCAO = { T: 'text-funcao-t', S: 'text-funcao-s', D: 'text-funcao-d' } satisfies Record<Funcao, string>
+const NOME_FUNCAO = { T: 'tônica', S: 'subdominante', D: 'dominante' } satisfies Record<Funcao, string>
+```
+
+No cartão "Agora", troque o `<p>` do grau por um com a função do lado:
+
+```tsx
+                        <p className="flex items-baseline gap-3 font-heading text-lg font-semibold font-stretch-expanded">
+                            <span className="text-primary">{atual.grau}</span>
+                            <span className={`text-sm ${COR_FUNCAO[funcao(atual.grau)]}`}>{NOME_FUNCAO[funcao(atual.grau)]}</span>
+                        </p>
+```
+
+Na grade, troque o `<small>` do grau:
+
+```tsx
+                                <small className="flex items-center gap-2 text-xs">
+                                    <span className={agora ? 'text-primary' : 'text-muted-foreground'}>{acorde.grau}</span>
+                                    <span className={`font-semibold ${COR_FUNCAO[funcao(acorde.grau)]}`} title={NOME_FUNCAO[funcao(acorde.grau)]}>
+                                        {funcao(acorde.grau)}
+                                    </span>
+                                </small>
+```
+
+O `title` é o balãozinho que aparece ao parar o mouse em cima: na grade só cabe a letra, e o `title` explica o que ela quer dizer.
+
+No `<Fretboard>`, depois do `chegada`:
+
+```tsx
+                        acorde={atual}
+                        proximoAcorde={proximo}
+```
+
+O `atual` tem um campo a mais (`grau`), e tudo bem: um objeto com campos **a mais** ainda serve para o tipo `Acorde`.
+
+E a legenda inteira do braço (o `<div className="flex flex-wrap gap-x-6 ...">` com os 4 itens) vira:
+
+```tsx
+                <LegendaPapeis
+                    extra={
+                        <>
+                            <span className="size-3.5 rounded-full border-2 border-dashed border-muted-foreground" /> Próxima troca (na cor do papel no próximo acorde)
+                        </>
+                    }
+                />
+```
+
+### Passo 7.8 — O Escala + Acorde também
+
+No `EscalasNoAcorde.tsx`, importe a legenda:
+
+```tsx
+import { LegendaPapeis } from '@/components/LegendaPapeis'
+```
+
+No `<Fretboard>`, passe o acorde:
+
+```tsx
+                <Fretboard tonica={tonica} notas={notas} mostrar={mostrar} destaque={[...regiao, ...desenhos.flat()]} desenhos={desenhos} acorde={{ raiz: tonica, tipo }} />
+```
+
+E troque a legenda de 4 itens por:
+
+```tsx
+            <LegendaPapeis
+                extra={
+                    <>
+                        <span className="h-3.5 w-6 rounded bg-primary/10" /> Região da forma
+                    </>
+                }
+            />
+```
+
+**✅ O que você deve ver:** toque o blues em Lá com **Graus**:
+- no **A7**: o G aparece em **roxo** (7) e o C# em **verde-água** (3);
+- no **D7**: o mesmo G vira **contorno vermelho** (tensão), o C fica roxo (agora ele é o 7) e o D#, meio tom acima do D, também fica vermelho;
+- no fim de cada compasso antes de uma troca, os tracejados aparecem **coloridos**: no fim do A7, o anel verde-água mostra onde vai estar o F# do D7;
+- na grade: **T S T T S S T T D S T D**, e no cartão "IV7 · subdominante".
+
+No **Braço → Escala + Acorde**, as mesmas cores, com o acorde que você escolher.
+
+> 🎸 **Para treinar:** no D7, termine cada frase numa nota **verde-água** (o F#, que nem está na escala de blues!) e repare como ela "encaixa". Depois termine no G vermelho e sinta a diferença.
+
+---
+
 ## Resumo
 
 | Conceito | Onde apareceu | No C# seria |
@@ -879,8 +1550,14 @@ Depois do `</div>` que fecha a grade (logo após o `})}` do `compassos.map`), ve
 | `Math.random()` | `humano`, `forca` | `Random.Shared.NextDouble()` |
 | `<input type="range">` | mixer | o `Slider` do WPF |
 | Swing | `quando` | — (atraso de 2/3 de passo) |
+| `Set` | `encaixar` | `HashSet<T>` |
+| Função pura testável (virada, refrão) | `bateriaDoCompasso` | um método `static` sem efeito colateral |
+| `indexOf` / `some` | `papel` | `IndexOf` / `Any()` |
+| Renomear na desestruturação | `acorde: acordeAtual` | — (`var acordeAtual = props.acorde`) |
+| `!` (não é `null`) | `funcao` | o `!` de nullable |
+| JSX como prop (`ReactNode`) | `LegendaPapeis` | — |
 
-**Testes:** 42 passando.
+**Testes:** 53 passando.
 
 ---
 
@@ -905,10 +1582,11 @@ Depois do `</div>` que fecha a grade (logo após o `})}` do `compassos.map`), ve
         baixo: '1-----5.1-----8.',
         teclado: '..x...x...x...x.',
         timbres: { bateria: 'acustica', baixo: 'dedo', teclado: 'orgao' },
+        refrao: { hhclosed: '................', ride: 'x.x.x.x.x.x.x.x.' },
     },
 ```
 
-O teclado em `'..x...x...x...x.'` cai nos passos 2, 6, 10 e 14: o "e" de cada tempo, o mesmo lugar que o swing atrasa. Por isso o reggae fica com `swing: 0`, porque com swing ele viraria outra coisa. O `x` minúsculo e sem `-` deixa o acorde curto e fraco, o "tchak" do reggae. O teste do Passo 3.2 confere o tamanho das strings, e o tipo `Timbres` confere os nomes dos timbres.
+O refrão troca o chimbal por um ride suave, como na Bossa. Sem o `refrao`, o TypeScript reclama: depois da Parte 6, ele é obrigatório. O teclado em `'..x...x...x...x.'` cai nos passos 2, 6, 10 e 14: o "e" de cada tempo, o mesmo lugar que o swing atrasa. Por isso o reggae fica com `swing: 0`, porque com swing ele viraria outra coisa. O `x` minúsculo e sem `-` deixa o acorde curto e fraco, o "tchak" do reggae. O teste do Passo 3.2 confere o tamanho das strings, e o tipo `Timbres` confere os nomes dos timbres.
 </details>
 
 **2.** *(Previsão.)* No Shuffle, se o `swing` fosse **0.5**, em que fração do tempo cairia a 2ª colcheia? E com **1.5**?

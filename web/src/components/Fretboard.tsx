@@ -1,3 +1,4 @@
+import { papel, type Papel, type TipoAcorde } from '@/theory/acordes'
 import { AFINACAO_PADRAO, janela, notaNaCasa } from '@/theory/braco'
 import { grau, type Nota } from '@/theory/notas'
 import { AnimatePresence, motion } from 'motion/react'
@@ -26,13 +27,25 @@ function xFaixa(casa: number) {
     return casa === 0 ? 0 : X_PESTANA + (casa - 1) * LARGURA_CASA
 }
 
-// [cor do círculo, cor do texto]. Com um acorde na tela, só a tônica DO ACORDE fica cheia em âmbar.
-function cores(ehTonica: boolean, doAcorde: boolean, comAcorde: boolean): [string, string] {
-    if (ehTonica && (doAcorde || !comAcorde)) return ['fill-primary stroke-primary', 'fill-primary-foreground']
-    if (ehTonica) return ['fill-card stroke-primary', 'fill-primary']
-    if (doAcorde) return ['fill-foreground stroke-foreground', 'fill-background']
-    return ['fill-card stroke-cat-escalas', 'fill-foreground']
+// A cor de cada papel: [preenchimento quando é do desenho, traço, texto quando é só contorno]
+const COR_PAPEL: Record<Papel, [string, string, string]> = {
+    '1': ['fill-primary', 'stroke-primary', 'fill-primary'],
+    '3': ['fill-grau-3', 'stroke-grau-3', 'fill-grau-3'],
+    '5': ['fill-foreground', 'stroke-foreground', 'fill-foreground'],
+    '7': ['fill-grau-7', 'stroke-grau-7', 'fill-grau-7'],
+    tensao: ['fill-card', 'stroke-tensao', 'fill-tensao'],
+    escala: ['fill-card', 'stroke-cat-escalas', 'fill-foreground'],
 }
+
+// [cor do círculo, cor do texto]. Sem acorde na tela, só a tônica muda de cor.
+function cores(ehTonica: boolean, doAcorde: boolean, p: Papel | null): [string, string] {
+    if (!p) return ehTonica ? ['fill-primary stroke-primary', 'fill-primary-foreground'] : ['fill-card stroke-cat-escalas', 'fill-foreground']
+    const [cheio, traco, texto] = COR_PAPEL[p]
+    if (doAcorde) return [`${cheio} ${traco}`, p === '1' ? 'fill-primary-foreground' : 'fill-background']
+    return [`fill-card ${traco}`, texto]
+}
+
+type Acorde = { raiz: Nota; tipo: TipoAcorde }
 
 export type Exibicao = 'nota' | 'grau'
 
@@ -45,9 +58,11 @@ type Props = {
     desenhos?: string[][]
     proximo?: string[]
     chegada?: number
+    acorde?: Acorde // o acorde que está tocando: as notas ganham a cor do papel delas nele
+    proximoAcorde?: Acorde // o próximo: os tracejados ganham a cor do papel no próximo
 }
 
-export function Fretboard({ tonica, notas, mostrar = 'nota', alvos = [], destaque = [], desenhos = [], proximo = [], chegada = 0 }: Props) {
+export function Fretboard({ tonica, notas, mostrar = 'nota', alvos = [], destaque = [], desenhos = [], proximo = [], chegada = 0, acorde: acordeAtual, proximoAcorde }: Props) {
 
     const acorde = desenhos.flat()
     const comAcorde = acorde.length > 0
@@ -119,6 +134,7 @@ export function Fretboard({ tonica, notas, mostrar = 'nota', alvos = [], destaqu
             <motion.g key={proximo.join(' ')} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: chegada, ease: 'linear' }}>
                 {proximo.map((chave) => {
                     const [corda, casa] = chave.split('-').map(Number)
+                    const p = proximoAcorde ? papel(proximoAcorde.raiz, proximoAcorde.tipo, notaNaCasa(corda, casa)) : null
                     return (
                         <circle
                             key={chave}
@@ -126,9 +142,9 @@ export function Fretboard({ tonica, notas, mostrar = 'nota', alvos = [], destaqu
                             cy={yCorda(corda)}
                             r={15}
                             fill="none"
-                            strokeWidth={1.5}
+                            strokeWidth={2}
                             strokeDasharray="4 3"
-                            className="stroke-muted-foreground"
+                            className={p ? COR_PAPEL[p][1] : 'stroke-muted-foreground'}
                         />
                     )
                 })}
@@ -142,13 +158,16 @@ export function Fretboard({ tonica, notas, mostrar = 'nota', alvos = [], destaqu
                         if (!notas.includes(nota) && !doAcorde) return null
                         const ehTonica = nota === tonica
                         const apagada = destaque.length > 0 && !destaque.includes(chave)
+                        const p = comAcorde && acordeAtual ? papel(acordeAtual.raiz, acordeAtual.tipo, nota) : null
                         const soEscala = comAcorde && !doAcorde
-                        const [corCirculo, corTexto] = cores(ehTonica, doAcorde, comAcorde)
+                        // fora do desenho: notas do acorde e tensões ficam visíveis, o resto da escala apaga
+                        const opacidade = apagada ? 0.1 : !soEscala ? 1 : p === 'escala' || !p ? 0.55 : 0.85
+                        const [corCirculo, corTexto] = cores(ehTonica, doAcorde, p)
                         return (
                             <motion.g
                                 key={chave}
                                 initial={{ scale: 0 }}
-                                animate={{ scale: 1, opacity: apagada ? 0.1 : soEscala ? 0.6 : 1 }}
+                                animate={{ scale: 1, opacity: opacidade }}
                                 exit={{ scale: 0 }}
                                 transition={{ duration: 0.2 }}
                             >

@@ -1,9 +1,10 @@
 import { describe, it, expect } from 'vitest'
 import { transpor, distancia } from '../notas'
 import { notasDaEscala } from '../escalas'
-import { ACORDES, FORMAS, notasDoAcorde, voicing, type Forma, type TipoAcorde } from '../acordes'
+import { ACORDES, FORMAS, notasDoAcorde, papel, voicing, type Forma, type TipoAcorde } from '../acordes'
 import { grau, NOTAS } from '../notas'
 import { notaNaCasa } from '../braco'
+import { funcao } from '../progressoes'
 
 describe('notas', () => {
     it('sobe um tom de C para D', () => {
@@ -85,5 +86,24 @@ describe('voicings', () => {
                     expect(tocadas).toContain(acorde[0])
                     expect(tocadas).toContain(acorde[1])
                 }
+    })
+})
+
+describe('papel da nota no acorde', () => {
+    it('A7: A é 1, C# é 3, E é 5, G é 7', () => {
+        expect(['A', 'C#', 'E', 'G'].map((n) => papel('A', 'dom7', n as 'A'))).toEqual(['1', '3', '5', '7'])
+    })
+    it('no D7, o G (meio tom acima do F#) é tensão; o E é só escala', () => {
+        expect(papel('D', 'dom7', 'G')).toBe('tensao')
+        expect(papel('D', 'dom7', 'E')).toBe('escala')
+    })
+    it('no E7, o C (meio tom acima do B) é tensão', () => {
+        expect(papel('E', 'dom7', 'C')).toBe('tensao')
+    })
+})
+
+describe('função do grau', () => {
+    it('I tônica, IV subdominante, V dominante', () => {
+        expect(['I7', 'IV7', 'V7', 'vi', 'ii7', 'bVII'].map(funcao)).toEqual(['T', 'S', 'D', 'T', 'S', 'S'])
     })
 })

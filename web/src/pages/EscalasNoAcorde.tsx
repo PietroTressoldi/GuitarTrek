@@ -5,6 +5,7 @@ import { estaNaEscala, notasDaEscala, ROTULOS_ESCALA, type NomeEscala } from '@/
 import { cifra, FORMAS, notasDoAcorde, ROTULOS_ACORDE, voicing, type Forma, type TipoAcorde } from '@/theory/acordes'
 import { aoRedor } from '@/theory/braco'
 import type { PropsModo } from './Braco'
+import { LegendaPapeis } from '@/components/LegendaPapeis'
 
 const NOMES_ESCALA = Object.keys(ROTULOS_ESCALA) as NomeEscala[]
 
@@ -86,22 +87,15 @@ export function EscalaNoAcorde({ opcoes, mudar }: PropsModo) {
                 )}
             </div>
             <div className="overflow-x-auto rounded-xl border bg-card p-4">
-                <Fretboard tonica={tonica} notas={notas} mostrar={mostrar} destaque={[...regiao, ...desenhos.flat()]} desenhos={desenhos} />
+                <Fretboard tonica={tonica} notas={notas} mostrar={mostrar} destaque={[...regiao, ...desenhos.flat()]} desenhos={desenhos} acorde={{ raiz: tonica, tipo }} />
             </div>
-            <div className="flex flex-wrap gap-x-6 gap-y-2 text-xs text-muted-foreground">
-                <span className="flex items-center gap-2">
-                    <span className="size-3.5 rounded-full bg-primary" /> Tônica do acorde
-                </span>
-                <span className="flex items-center gap-2">
-                    <span className="size-3.5 rounded-full bg-foreground" /> Nota do acorde
-                </span>
-                <span className="flex items-center gap-2">
-                    <span className="size-3 rounded-full border-2 border-cat-escalas opacity-60" /> Resto da escala
-                </span>
-                <span className="flex items-center gap-2">
-                    <span className="h-3.5 w-6 rounded bg-primary/10" /> Região da forma
-                </span>
-            </div>
+            <LegendaPapeis
+                extra={
+                    <>
+                        <span className="h-3.5 w-6 rounded bg-primary/10" /> Região da forma
+                    </>
+                }
+            />
         </section>
     )
 }

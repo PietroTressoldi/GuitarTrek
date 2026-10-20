@@ -8,3 +8,10 @@ it('todo padrão tem 16 passos, só com X, x e .', () => {
         }
     }
 })
+
+it('baixo e teclado têm 16 passos e não começam segurando nada', () => {
+    for (const estilo of Object.values(ESTILOS)) {
+        expect(estilo.baixo).toMatch(/^[135678.][135678.-]{15}$/)
+        expect(estilo.teclado).toMatch(/^[Xx.][Xx.-]{15}$/)
+    }
+})

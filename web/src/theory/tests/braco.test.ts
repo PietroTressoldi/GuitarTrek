@@ -17,6 +17,11 @@ describe('braço', () => {
 })
 
 describe('shapes', () => {
+    it('perto da pestana a caixa sobe uma oitava em vez de cair na casa -1', () => {
+        const caixa = shape('E', 'pentaMaior', 0)
+        expect(caixa.every((chave) => !chave.includes('--'))).toBe(true)
+        expect(caixa[0]).toBe('5-12')
+    })
     it('Lá penta, posição 1 = a caixa da casa 5', () => {
         expect(shape('A', 'pentaMenor', 0)).toEqual([
             '5-5', '5-8', '4-5', '4-7', '3-5', '3-7', '2-5', '2-7', '1-5', '1-8', '0-5', '0-8',
